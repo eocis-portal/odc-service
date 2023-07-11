@@ -11,6 +11,33 @@ conda install jupyter matplotlib scipy
 
 ```bash
 git clone https://github.com/opendatacube/datacube-core
-cd datacube-core/
+git clone https://github.com/eocis-portal/odc-service.git
+```
+
+### create database, start database service
+
+```bash
 conda activate odc_env
+cd github/odc-service/scripts/db
+./create.sh
+./start.sh
+./status.sh
+```
+
+# Initialise datacube
+
+```bash
+conda activate odc_env
+cp github/odc-service/config/datacube.conf ~/.datacube.conf
+cd ~
+datacube -C ~/.datacube.conf system init
+```
+
+# load SST product and dataset(s)
+
+```bash
+cd github/odc-service/product_definitions/sst
+datacube -C ~/.datacube.conf product add sst.yaml
+python sst_importer.py --input-folder /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 --start-date 2021-01-01 --end-date 2021-12-31
+
 ```
