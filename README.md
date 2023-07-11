@@ -38,6 +38,24 @@ datacube -C ~/.datacube.conf system init
 ```bash
 cd github/odc-service/product_definitions/sst
 datacube -C ~/.datacube.conf product add sst.yaml
-python sst_importer.py --input-folder /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 --start-date 2021-01-01 --end-date 2021-12-31
 
+python sst_importer.py --input-folder /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 --start-date 2021-01-01 --end-date 2021-12-31
+./add.sh 2021
+rm -rf 2021
 ```
+
+```bash
+vi ~/miniconda3/envs/odc_env/lib/python3.7/site-packages/datacube/storage/_rio.py
+```
+
+Edit the function `_rasterio_crs`:
+
+```python
+def _rasterio_crs(src):
+    if src.crs is None:
+        return rasterio.CRS.from_epsg(4326)
+        # raise ValueError('no CRS')
+
+    return geometry.CRS(src.crs)
+```
+
