@@ -1,0 +1,38 @@
+---
+name: sst
+description: Sea Surface Temperature
+metadata_type: eo
+
+license: CC-BY-4.0
+
+metadata:
+  product:
+    name: sst
+
+storage:
+  crs: "EPSG:4326"
+  resolution:
+    longitude: 0.05
+    latitude: -0.05
+
+measurements:
+  - name: analysed_sst
+    aliases: []
+    units: "kelvin"
+    dtype: float32
+    nodata: NaN
+  - name: analysed_sst_uncertainty
+    aliases: []
+    units: "kelvin"
+    dtype: float32
+    nodata: NaN
+  - name: sea_ice_fraction
+    aliases: []
+    units: "1"
+    dtype: float32
+    nodata: NaN
+
+
+
+
+
