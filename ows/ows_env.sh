@@ -5,4 +5,4 @@ export DB_DATABASE=odc
 export DB_USERNAME=dev
 export DB_PASSWORD=
 export DATACUBE_DB_URL=postgresql:///odc
-export FLASK_APP=datacube_ows/ogc.py
+export FLASK_APP=/home/dev/miniconda3/envs/odc_env/lib/python3.9/site-packages/datacube_ows/ogc.py

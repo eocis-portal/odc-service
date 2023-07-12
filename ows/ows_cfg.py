@@ -463,11 +463,11 @@ ows_cfg = {
                     # The ODC product name for the associated data product
                     "product_name": "sst",
 
-                    "default_time": "2022-12-30",
+                    "default_time": "2021-12-30",
                     "time_axis": {
                         "time_interval": 1,
-                        "start_date": "2022-01-01",
-                        "end_date": "2022-12-31"
+                        "start_date": "2021-01-01",
+                        "end_date": "2021-12-31"
                     },
 
                     # Supported bands, mapping native band names to a list of possible aliases.
