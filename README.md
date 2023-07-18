@@ -82,7 +82,7 @@ rm -rf 2021
 ### Patch datacube to assign EPSG:4326 to imported netcdf4 files by default
 
 ```bash
-vi ~/miniconda3/envs/odc_env/lib/python3.7/site-packages/datacube/storage/_rio.py
+vi ~/miniconda3/envs/odc_env/lib/python3.9/site-packages/datacube/storage/_rio.py
 ```
 
 Edit the function `_rasterio_crs`:

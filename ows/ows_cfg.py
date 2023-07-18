@@ -92,6 +92,75 @@ sst_style = {
     }
 }
 
+sst_anomaly_style = {
+    "name": "sst_anomaly_style",
+    "title": "Sea Surface Temperature Anomaly",
+    "abstract": "Sea Surface Temperature Anomaly",
+    # The index function is continuous value from which the heat map is derived.
+    #
+    # Two formats are supported:
+    # 1. A string containing a fully qualified path to a python function
+    #    e.g. "index_function": "datacube_ows.ogc_utils.not_a_real_function_name",
+    #
+    # 2. A dict containing the following elements:
+    #    a) "function" (required): A string containing the fully qualified path to a python function
+    #    b) "args" (optional): An array of additional positional arguments that will always be passed to the function.
+    #    c) "kwargs" (optional): An array of additional keyword arguments that will always be passed to the function.
+    #    d) "mapped_bands" (optional): Boolean (defaults to False). If true, a band mapping function is passed
+    #       to the function as a keyword argument named "band_mapper".  This is useful if you are passing band aliases
+    #       to the function in the args or kwargs.  The band_mapper allows the index function to convert band aliases to
+    #       to band names.
+    #
+    # The function is assumed to take one arguments, an xarray Dataset.  (Plus any additional
+    # arguments required by the args and kwargs values in format 3, possibly including product_cfg.)
+    #
+    # "index_expression": "analysed_sst",
+    "index_function": {
+        "function": "datacube_ows.band_utils.pre_scaled_band",
+        "kwargs": {
+            "band": "analysed_sst",
+            "scale": 0.01,
+            "offset": 273.15
+        }
+    },
+    # List of bands used by this style. The band may not be passed to the index function if it is not declared
+    # here, resulting in an error.  Band aliases can be used here.
+    "needed_bands": ["analysed_sst"],
+    # The color ramp. Values between specified entries have both their alphas and colours
+    # interpolated.
+    "color_ramp": [
+        # Any value less than the first entry will have colour and alpha of the first entry.
+        # (i.e. in this example all negative values will be fully transparent (alpha=0.0).)
+        {
+            "value": -5,
+            "color": "#0000FF",
+            "alpha": 0.0
+        },
+        {
+            "value": -5,
+            "color": "#0000FF",
+            "alpha": 1.0
+        },
+        {
+            "value": 5,
+            "color": "#FF0000"
+        }
+    ],
+    # If true, the calculated index value for the pixel will be included in GetFeatureInfo responses.
+    # Defaults to True.
+    "include_in_feature_info": True,
+    # Legend section is optional for non-linear colour-ramped styles.
+    # If not supplied, a legend for the style will be automatically generated from the colour ramp.
+    "legend": {
+        # Whether or not to display a legend for this style.
+        # Defaults to True for non-linear colour-ramped styles.
+        "show_legend": True,
+        # Instead of using the generated color ramp legend for the style, a URL to an PNG file can
+        # be used instead.  If 'url' is not supplied, the generated legend is used.
+        # "url": "http://example.com/custom_style_image.png"
+    }
+}
+
 # REUSABLE CONFIG FRAGMENTS - Style definitions
 
 # Examples of styles which are linear combinations of the available spectral bands.
@@ -463,7 +532,7 @@ ows_cfg = {
                     # The ODC product name for the associated data product
                     "product_name": "sst",
 
-                    "default_time": "2021-12-30",
+                    "default_time": "2022-01-01",
                     "time_axis": {
                         "time_interval": 1,
                         "start_date": "2021-01-01",
@@ -596,6 +665,154 @@ ows_cfg = {
                         # defining styles.
                         "styles": [
                             sst_style
+                        ]
+                    }
+                },
+                {
+                    # NOTE: This layer IS a mappable "named layer" that can be selected in GetMap requests
+                    # Every layer must have a distinct human-readable title and abstract.
+                    "title": "Analysed SST Anomalies",
+                    "abstract": "Estimates of Sea Surface Temperature Anomaly",
+                    # Mappable layers must have a name - this is the layer name that appears in WMS GetMap
+                    # or WMTS GetTile requests and the coverage name that appears in WCS
+                    # DescribeCoverage/GetCoverage requests.
+                    "name": "analysed_sst_anomaly",
+                    # The ODC product name for the associated data product
+                    "product_name": "sstx",
+
+                    "default_time": "2021-01-01",
+                    "time_axis": {
+                        "time_interval": 1,
+                        "start_date": "2021-01-01",
+                        "end_date": "2021-01-01"
+                    },
+
+                    # Supported bands, mapping native band names to a list of possible aliases.
+                    # See reusable band alias maps above for documentation.
+                    "bands": sst_bands,
+                    # Resource limits.
+                    # See reusable resource limit declarations above for documentation.
+                    "resource_limits": standard_resource_limits,
+                    # If "dynamic" is False (the default) the the ranges for the product are cached in memory.
+                    # Dynamic products slow down the generation of the GetCapabilities document - use sparingly.
+                    "dynamic": False,
+                    # The resolution of the time access.  Optional. Allowed values are:
+                    # * "raw" (the default - data with timestamps to be according to the local solar day)
+                    # * "day" (daily data with date-resolution time stamps)
+                    # * "month" (for monthly summary datasets)
+                    # * "year" (for annual summary datasets)
+                    # "time_resolution": "solar",
+                    # The "native" CRS.  (as used for resource management calculations and WCS metadata)
+                    # (Used for resource management calculations and WCS metadata)
+                    # Must be in the global "published_CRSs" list.
+                    # Can be omitted if the product has a single native CRS, as this will be used in preference.
+                    "native_crs": "EPSG:4326",
+                    # The native resolution (x,y)
+                    # (Used for resource management calculations and WCS metadata)
+                    # This is the number of CRS units (e.g. degrees, metres) per pixel in the horizontal
+                    # and vertical directions for the native CRS.
+                    # Can be omitted if the product has a single native resolution, as this will be used in preference.
+                    # E.g. for EPSG:3577; (25.0,25.0) for Landsat-8 and (10.0,10.0 for Sentinel-2)
+                    "native_resolution": [0.05, -0.05],
+
+                    # The image_processing section must be supplied.
+                    "image_processing": {
+                        # Extent mask function
+                        # Determines what portions of dataset is potentially meaningful data.
+                        #
+                        # All the formats described above for "flags->fuse_func" are
+                        # supported here as well.
+                        #
+                        # Additionally, multiple extent mask functions can be specified as a list of any of
+                        # supported formats.  The result is the intersection of all supplied mask functions.
+                        #
+                        # The function is assumed to take two arguments, data (an xarray Dataset) and band (a band name).  (Plus any additional
+                        # arguments required by the args and kwargs values in format 3, possibly including product_cfg.)
+                        #
+                        "extent_mask_func": "ows_debug.mask_by_nan",
+
+                        # Bands to always fetch from the Datacube, even if it is not used by the active style.
+                        # Useful for when a particular band is always needed for the extent_mask_func,
+                        "always_fetch_bands": [],
+                        # Fuse func
+                        #
+                        # Determines how multiple dataset arrays are compressed into a single time array
+                        # All the formats described above for "extent_mask_func" are supported here as well.
+                        # (Passed through to datacube load_data() function.)
+                        #
+                        # Defaults to None.
+                        "fuse_func": None,
+                        # Set to true if the band product dataset extents include nodata regions.
+                        # Defaults to False.
+                        "manual_merge": False,
+                        # Apply corrections for solar angle, for "Level 1" products.
+                        # (Defaults to false - should not be used for NBAR/NBAR-T or other Analysis Ready products
+                        "apply_solar_corrections": False,
+                    },
+                    # If the WCS section is not supplied, then this named layer will NOT appear as a WCS
+                    # coverage (but will still be a layer in WMS and WMTS).
+                    "wcs": {
+                        # The native format advertised for the coverage.
+                        # Must be one of the formats defined
+                        # in the global wcs formats section.
+                        # Optional: if not supplied defaults to the
+                        # globally defined native_format.
+                        "native_format": "netCDF"
+                    },
+                    # Each key of the identifiers dictionary must match a name from the authorities dictionary
+                    # in the global section.  The values are the identifiers defined for this layer by that
+                    # authority.
+                    "identifiers": {
+                        "auth": "ls8_ard",
+                        "idsrus": "12345435::0054234::GHW::24356-splunge"
+                    },
+                    # The urls section provides the values that are included in the FeatureListURLs and
+                    # DataURLs sections of a WMS GetCapabilities document.
+                    # Multiple of each may be defined per product.
+                    #
+                    # The entire section the "features and "data" subsections within it are optional. The
+                    # default is an empty list(s).
+                    #
+                    # Each individual entry must include a url and MIME type format.
+                    #
+                    # FeatureListURLs point to "a list of the features represented in a Layer".
+                    # DataURLs "offer a link to the underlying data represented by a particular layer"
+                    "urls": {
+                        "features": [
+                            {
+                                "url": "http://domain.tld/path/to/page.html",
+                                "format": "text/html"
+                            },
+                            {
+                                "url": "http://another-domain.tld/path/to/image.png",
+                                "format": "image/png"
+                            }
+                        ],
+                        "data": [
+                            {
+                                "url": "http://abc.xyz/data-link.xml",
+                                "format": "application/xml"
+                            }
+                        ]
+                    },
+                    # The feature_info section is optional.
+                    "feature_info": {
+                        # Include an additional list of utc dates in the WMS Get Feature Info. Defaults to False.
+                        # HACK: only used for GSKY non-solar day lookup.
+                        "include_utc_dates": False
+                    },
+                    # Style definitions
+                    # The "styling" section is required
+                    "styling": {
+                        # The default_style is the style used when no style is explicitly given in the
+                        # request.  If given, it must be the name of a style in the "styles" list. If
+                        # not explictly defined it defaults to the first style in "styles" list.
+                        "default_style": "sst_anomaly_style",
+                        # The "styles" list must be explicitly supplied, and must contain at least one
+                        # style.  See reusable style definitions above for more documentation on
+                        # defining styles.
+                        "styles": [
+                            sst_anomaly_style
                         ]
                     }
                 }
