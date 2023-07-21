@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 dc = datacube.Datacube(app="my_analysis",config="/home/dev/.datacube_integration.conf")
 
-print(dc.list_products())
+print(dc.list_products())i
 
 print(dc.list_measurements())
 
