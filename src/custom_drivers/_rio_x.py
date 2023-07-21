@@ -39,7 +39,7 @@ def maybe_lock(lock):
         return contextlib.suppress()
     return lock
 
-climatology_template = "NetCDF:/data/esacci_sst/public/CDR2.1_release/Climatology/L4/v2.1/D%03d-ESACCI-L4_GHRSST-SSTdepth-OSTIA-GLOB_CDR2.1-v02.0-fv01.0.nc:analysed_sst"
+climatology_template_path = "NetCDF:/data/esacci_sst/public/CDR2.1_release/Climatology/L4/v2.1/D%03d-ESACCI-L4_GHRSST-SSTdepth-OSTIA-GLOB_CDR2.1-v02.0-fv01.0.nc:analysed_sst"
 
 def get_doy(filename):
     splits = filename.split("/")
@@ -103,9 +103,11 @@ class BandDataSource(GeoRasterReader):
             if self.source_climatology:
                 c_scale = self.source_climatology.ds.scales[0]
                 c_offset = self.source_climatology.ds.offsets[0]
-                c = self.source.ds.read(indexes=self.source_climatology.bidx, window=window, out_shape=out_shape)
+                c = self.source_climatology.ds.read(indexes=self.source_climatology.bidx, window=window, out_shape=out_shape)
                 c = c*c_scale + c_offset
+                print("c",c)
                 out = out - c
+                print("out",out)
 
             return out
 
@@ -170,7 +172,7 @@ class RasterioDataSource(DataSource):
                 if override:
                     raise RuntimeError(f'Broken/missing geospatial data was found in file "{self.filename}"')
 
-                clim_path = self.climatology_template_path%doy
+                clim_path = climatology_template_path%doy
                 
                 with rasterio.open(clim_path, sharing=False) as src_clim:
                     band_clim = rasterio.band(src_clim, bandnumber)

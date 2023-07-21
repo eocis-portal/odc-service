@@ -119,8 +119,8 @@ sst_anomaly_style = {
         "function": "datacube_ows.band_utils.pre_scaled_band",
         "kwargs": {
             "band": "analysed_sst",
-            "scale": 0.01,
-            "offset": 273.15
+            "scale": 1,
+            "offset": 0
         }
     },
     # List of bands used by this style. The band may not be passed to the index function if it is not declared
@@ -132,17 +132,17 @@ sst_anomaly_style = {
         # Any value less than the first entry will have colour and alpha of the first entry.
         # (i.e. in this example all negative values will be fully transparent (alpha=0.0).)
         {
-            "value": -5,
+            "value": -2,
             "color": "#0000FF",
             "alpha": 0.0
         },
         {
-            "value": -5,
+            "value": -2,
             "color": "#0000FF",
             "alpha": 1.0
         },
         {
-            "value": 5,
+            "value": 2,
             "color": "#FF0000"
         }
     ],
@@ -535,8 +535,8 @@ ows_cfg = {
                     "default_time": "2022-01-01",
                     "time_axis": {
                         "time_interval": 1,
-                        "start_date": "2021-01-01",
-                        "end_date": "2021-12-31"
+                        "start_date": "2022-01-01",
+                        "end_date": "2022-12-31"
                     },
 
                     # Supported bands, mapping native band names to a list of possible aliases.
@@ -680,11 +680,11 @@ ows_cfg = {
                     # The ODC product name for the associated data product
                     "product_name": "sstx",
 
-                    "default_time": "2021-01-01",
+                    "default_time": "2022-01-01",
                     "time_axis": {
                         "time_interval": 1,
-                        "start_date": "2021-01-01",
-                        "end_date": "2021-01-01"
+                        "start_date": "2022-01-01",
+                        "end_date": "2022-01-01"
                     },
 
                     # Supported bands, mapping native band names to a list of possible aliases.

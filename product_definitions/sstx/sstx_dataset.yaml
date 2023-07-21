@@ -25,7 +25,7 @@ grid_spatial:
 image:
   bands:
     analysed_sst:
-      path: /home/dev/data/regrid/sst/2022/01/01/20220101120000-C3S-L4_GHRSST-SSTdepth-OSTIA-GLOB_ICDR3.0-v02.0-fv01.0.nc
+      path: /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/2022/01/01/20220101120000-C3S-L4_GHRSST-SSTdepth-OSTIA-GLOB_ICDR3.0-v02.0-fv01.0.nc
       layer: "analysed_sst"
 lineage:
   source_datasets: {}
