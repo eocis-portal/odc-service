@@ -53,10 +53,9 @@ class TimeStore:
     def save(self):
         self.array.flush()
 
-def test_load(ts):
-    rootpath = "/home/dev/data/regrid/sst/2022"
-    for month in sorted(os.listdir(rootpath)):
-        monthpath = os.path.join(rootpath, month)
+def test_load(ts,frompath):
+    for month in sorted(os.listdir(frompath)):
+        monthpath = os.path.join(frompath, month)
         for day in sorted(os.listdir(monthpath)):
             daypath = os.path.join(monthpath, day)
             files = [file for file in os.listdir(daypath) if file.endswith(".nc")]
@@ -67,12 +66,13 @@ def test_load(ts):
             monthidx = int(month) - 1
             dayidx = int(day) - 1
             ds = xr.open_dataset(filepath, mask_and_scale=False)
-            sst = ds["analysed_sst"].coarsen(lat=10, lon=10).mean().data
+            sst = ds["analysed_sst"].data
             ts.add(monthidx, dayidx, sst)
 
 
 if __name__ == '__main__':
-    ts = TimeStore("ts.npy",2022,3600,7200,scale=0.01,offset=273.15)
+    ts = TimeStore("/data/esacci_sst/ts.npy",2021,3600,7200,scale=0.01,offset=273.15)
     ts.open()
-    test_load(ts)
+    test_load(ts,"/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/2021")
+    ts.save()
     print(ts.get(600,50))
