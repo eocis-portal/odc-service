@@ -64,6 +64,13 @@ cd ~
 datacube -C ~/.datacube.conf system init
 ```
 
+### install custom drivers
+
+```bash
+cd ~/github/odc-service
+pip install .
+```
+
 ### load SST product 
 
 ```bash

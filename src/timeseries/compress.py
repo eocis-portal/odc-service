@@ -5,7 +5,7 @@ import xarray as xr
 import os
 import calendar
 
-class Compressor:
+class CompressorX:
 
     FILLVALUE = -32768
 

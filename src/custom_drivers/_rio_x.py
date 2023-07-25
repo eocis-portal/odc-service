@@ -93,12 +93,19 @@ class BandDataSource(GeoRasterReader):
              out_shape: Optional[RasterShape] = None) -> Optional[np.ndarray]:
         """Read data in the native format, returning a numpy array
         """
+        print("window=",str(window))
+        if window:
+            col_off = window[0][0]
+            row_off = window[0][1]
+            width = window[1][0]
+            height = window[1][1]
         with maybe_lock(self._lock):
             # TODO some big assumptions
             scale = self.source.ds.scales[0]
             offset = self.source.ds.offsets[0]
-            a = self.source.ds.read(indexes=self.source.bidx, window=window, out_shape=out_shape)
-            out = a*scale + offset
+            fillvalue = self.source.ds.nodatavals[0]
+            a = self.source.ds.read(indexes=self.source.bidx, window=window, out_shape=out_shape, boundless=True, fill_value=274)
+            out = np.where(a == fillvalue, np.nan, a*scale + offset)
 
             if self.source_climatology:
                 c_scale = self.source_climatology.ds.scales[0]
@@ -162,8 +169,7 @@ class RasterioDataSource(DataSource):
                 nodata = src.nodatavals[band.bidx-1] if src.nodatavals[band.bidx-1] is not None else self.nodata
                 nodata = num2numpy(nodata, band.dtype)
 
-                # get the day of year
-                doy = get_doy(str(self.filename))
+
 
                 if locked:
                     locked = False
@@ -172,11 +178,14 @@ class RasterioDataSource(DataSource):
                 if override:
                     raise RuntimeError(f'Broken/missing geospatial data was found in file "{self.filename}"')
 
-                clim_path = climatology_template_path%doy
+                # get the day of year
+                # doy = get_doy(str(self.filename))
+                # clim_path = climatology_template_path%doy
                 
-                with rasterio.open(clim_path, sharing=False) as src_clim:
-                    band_clim = rasterio.band(src_clim, bandnumber)
-                    yield BandDataSource(band, nodata=nodata, lock=lock, source_climatology=band_clim)
+                # with rasterio.open(clim_path, sharing=False) as src_clim:
+                    # band_clim = rasterio.band(src_clim, bandnumber)
+                    # yield BandDataSource(band, nodata=nodata, lock=lock, source_climatology=band_clim)
+                yield BandDataSource(band, nodata=np.nan, lock=lock)
 
         except Exception as e:
             _LOG.error("Error opening source dataset: %s", self.filename)
