@@ -73,6 +73,6 @@ def test_load(ts,frompath):
 if __name__ == '__main__':
     ts = TimeStore("/data/esacci_sst/ts.npy",2021,3600,7200,scale=0.01,offset=273.15)
     ts.open()
-    test_load(ts,"/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/2021")
-    ts.save()
+    # test_load(ts,"/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/2021")
+    # ts.save()
     print(ts.get(600,50))
