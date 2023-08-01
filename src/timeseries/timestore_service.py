@@ -13,9 +13,6 @@ app = Flask(__name__)
 app.config.from_object(Config())
 
 
-
-
-
 class App:
 
     pattern = "/home/dev/data/{YEAR}.npy"

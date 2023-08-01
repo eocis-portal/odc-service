@@ -1,4 +1,4 @@
-
+import datetime
 
 import numpy as np
 import xarray as xr
@@ -21,6 +21,7 @@ class TimeStore:
         self.scale = None
         self.offset = None
         self.valid_indexes = []
+        self.valid_dates = []
         self.variable_name = None
         self.variable_metadata = None
         self.shape = None
@@ -127,6 +128,8 @@ class TimeStore:
         else:
             self.shape = (self.nj,self.ni,12)
 
+        self.valid_indexes = []
+        self.valid_dates = []
         if self.period == "daily":
             for idx in range(12*31):
                 month = idx//31
@@ -134,8 +137,11 @@ class TimeStore:
                 (_,nr_days) = calendar.monthrange(self.year,1+month)
                 if day < nr_days:
                     self.valid_indexes.append(idx)
+                    self.valid_dates.append(datetime.date(self.year,month+1,day+1))
         else:
-            self.valid_indexes = list(range(12))
+            for month in range(12):
+                self.valid_indexes.append(month)
+                self.valid_dates.append(datetime.date(self.year, month+1, 1))
 
     def get_period(self):
         return self.period
@@ -146,7 +152,7 @@ class TimeStore:
     def add_month(self, month, data):
         self.array[:,:,month] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
 
-    def get(self, lat, lon):
+    def get(self, lat, lon, with_dates=False):
         j = round((lat - self.lat_min)/(self.lat_max - self.lat_min) * self.nj)
         i = round((lon - self.lon_min) / (self.lon_max - self.lon_min) * self.ni)
         if self.period == "daily":
@@ -155,7 +161,12 @@ class TimeStore:
             values = self.array[j,i,:]
         values = np.where(values == -32768, np.nan, values*self.scale + self.offset)
         values = values.flatten()[self.valid_indexes]
-        return values.tolist()
+        values = values.tolist()
+        if with_dates:
+            values = [(value,dt) for (value,dt) in zip(values,self.valid_dates) if not np.isnan(value)]
+        else:
+            values = list(map(lambda v: v if not np.isnan(v) else None, values))
+        return values
 
     def save(self):
         self.array.flush()
