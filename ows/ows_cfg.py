@@ -45,15 +45,15 @@ sst_style = {
     # The function is assumed to take one arguments, an xarray Dataset.  (Plus any additional
     # arguments required by the args and kwargs values in format 3, possibly including product_cfg.)
     #
-    # "index_expression": "analysed_sst",
-    "index_function": {
-        "function": "datacube_ows.band_utils.pre_scaled_band",
-        "kwargs": {
-            "band": "analysed_sst",
-            "scale": 0.01,
-            "offset": 273.15
-        }
-    },
+    "index_expression": "analysed_sst",
+    # "index_function": {
+    #     "function": "datacube_ows.band_utils.pre_scaled_band",
+    #     "kwargs": {
+    #         "band": "analysed_sst",
+    #         "scale": 1,
+    #         "offset": 0
+    #     }
+    # },
     # List of bands used by this style. The band may not be passed to the index function if it is not declared
     # here, resulting in an error.  Band aliases can be used here.
     "needed_bands": ["analysed_sst"],
@@ -92,10 +92,10 @@ sst_style = {
     }
 }
 
-sst_anomaly_style = {
-    "name": "sst_anomaly_style",
-    "title": "Sea Surface Temperature Anomaly",
-    "abstract": "Sea Surface Temperature Anomaly",
+sst_uncertainty_style = {
+    "name": "sst_uncertainty_style",
+    "title": "Sea Surface Temperature Uncertainty",
+    "abstract": "Sea Surface Temperature Uncertainty",
     # The index function is continuous value from which the heat map is derived.
     #
     # Two formats are supported:
@@ -118,14 +118,14 @@ sst_anomaly_style = {
     "index_function": {
         "function": "datacube_ows.band_utils.pre_scaled_band",
         "kwargs": {
-            "band": "analysed_sst",
+            "band": "analysed_sst_uncertainty",
             "scale": 1,
             "offset": 0
         }
     },
     # List of bands used by this style. The band may not be passed to the index function if it is not declared
     # here, resulting in an error.  Band aliases can be used here.
-    "needed_bands": ["analysed_sst"],
+    "needed_bands": ["analysed_sst_uncertainty"],
     # The color ramp. Values between specified entries have both their alphas and colours
     # interpolated.
     "color_ramp": [
@@ -319,10 +319,7 @@ ows_cfg = {
         # Service URL.
         # A list of fully qualified URLs that the service can return
         # in the GetCapabilities documents based on the requesting url
-        "allowed_urls": ["http://localhost/odc_ows",
-                          "https://localhost/odc_ows",
-                          "https://alternateurl.domain.org/odc_ows",
-                          "http://127.0.0.1:5000/"],
+        "allowed_urls": ["http://192.171.169.123:5000/"],
         # URL that humans can visit to learn more about the service(s) or organization
         # should be fully qualified
         "info_url": "http://opendatacube.org",
@@ -412,8 +409,8 @@ ows_cfg = {
         # "s3_aws_zone": "ap-southeast-2",
         # Max tile height/width for wms.  (N.B. Does not apply to WMTS)
         # Optional, defaults to 256x256
-        "max_width": 512,
-        "max_height": 512,
+        "max_width": 256,
+        "max_height": 256,
 
         # These define the AuthorityURLs.
         # They represent the authorities that define the "Identifiers" defined layer by layer below.
@@ -486,9 +483,8 @@ ows_cfg = {
             # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
             # Every layer must have a human-readable title
             "title": "Sea Surface Temperature",
-            # Top level layers must have a human-readable abstract. The abstract is optional for child-layers - defaulting
-            # to that of the parent layer.
-            "abstract": "EOCIS Sea Surface Temperature",
+
+            "abstract": "Sea Surface Temperature Layers",
             # NOTE: Folder-layers do not have a layer "name".
 
             # Keywords are optional, but can be added at any folder level and are cumulative.
@@ -532,11 +528,11 @@ ows_cfg = {
                     # The ODC product name for the associated data product
                     "product_name": "sst",
 
-                    "default_time": "2022-01-01",
+                    "default_time": "2021-01-01",
                     "time_axis": {
                         "time_interval": 1,
-                        "start_date": "2022-01-01",
-                        "end_date": "2022-12-31"
+                        "start_date": "2021-01-01",
+                        "end_date": "2021-12-31"
                     },
 
                     # Supported bands, mapping native band names to a list of possible aliases.
@@ -676,15 +672,15 @@ ows_cfg = {
                     # Mappable layers must have a name - this is the layer name that appears in WMS GetMap
                     # or WMTS GetTile requests and the coverage name that appears in WCS
                     # DescribeCoverage/GetCoverage requests.
-                    "name": "analysed_sst_anomaly",
+                    "name": "analysed_sst_uncertainty",
                     # The ODC product name for the associated data product
-                    "product_name": "sstx",
+                    "product_name": "sst",
 
-                    "default_time": "2022-01-01",
+                    "default_time": "2021-01-01",
                     "time_axis": {
                         "time_interval": 1,
-                        "start_date": "2022-01-01",
-                        "end_date": "2022-01-01"
+                        "start_date": "2021-01-01",
+                        "end_date": "2021-12-31"
                     },
 
                     # Supported bands, mapping native band names to a list of possible aliases.
@@ -807,12 +803,12 @@ ows_cfg = {
                         # The default_style is the style used when no style is explicitly given in the
                         # request.  If given, it must be the name of a style in the "styles" list. If
                         # not explictly defined it defaults to the first style in "styles" list.
-                        "default_style": "sst_anomaly_style",
+                        "default_style": "sst_uncertainty_style",
                         # The "styles" list must be explicitly supplied, and must contain at least one
                         # style.  See reusable style definitions above for more documentation on
                         # defining styles.
                         "styles": [
-                            sst_anomaly_style
+                            sst_uncertainty_style
                         ]
                     }
                 }

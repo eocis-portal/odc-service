@@ -4,17 +4,17 @@ from datacube.drivers.netcdf.driver import NetcdfReaderDriver, NetcdfWriterDrive
 from ._rio_x import RasterDatasetDataSource
 PROTOCOL = 'file'
 FORMAT = 'NetCDFX'
-
+FORMAT_ANOMALY = 'NetCDFX_anomaly'
 
 class NetcdfReaderDriverX(object):
     def __init__(self):
-        print("NetcdfReaderDriverXXX")
+        print("NetcdfReaderDriverX")
         self.name = 'NetcdfReader'
         self.protocols = [PROTOCOL]
-        self.formats = [FORMAT]
+        self.formats = [FORMAT, FORMAT_ANOMALY]
 
     def supports(self, protocol, fmt):
-        return fmt.lower() == "netcdfx"
+        return fmt in [FORMAT, FORMAT_ANOMALY]
 
     def new_datasource(self, band):
         return RasterDatasetDataSource(band)

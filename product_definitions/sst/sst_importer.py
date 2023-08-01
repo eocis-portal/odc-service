@@ -9,7 +9,7 @@ product: { name: sst }
 product_type: sst
 platform: {code: bbb}
 instrument: {name: ccc}
-format: {name: NetCDF}
+format: {name: NetCDFX}
 extent:
   coord:
     ll: {lat: -90, lon: -180}
@@ -44,7 +44,7 @@ lineage:
 
 def dt_formatter(dt):
     return "'"+dt.strftime("%Y-%m-%dT12:00:00")+"'"
-f
+
 start_date = datetime.date(2022, 1, 31)
 end_date = datetime.date(2022, 12, 31)
 
