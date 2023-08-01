@@ -31,7 +31,7 @@ class TimeStoreBuilder:
                 arr = ds[self.variable_name].data
                 into_timestore.add_day(monthidx, dayidx, arr)
                 loaded += 1
-                if limit and loaded >= limit:
+                if limit > 0 and loaded >= limit:
                     return
 
 if __name__ == '__main__':
