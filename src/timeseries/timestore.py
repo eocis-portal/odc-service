@@ -14,105 +14,141 @@ class TimeStore:
         self.filepath = filepath
         self.dtype = np.int16
         self.year = None
+        self.period = None
         self.array = None
         self.nj = None
         self.ni = None
         self.scale = None
         self.offset = None
         self.valid_indexes = []
-        self.offset = None
         self.variable_name = None
         self.variable_metadata = None
+        self.shape = None
+        self.array_offset = None
+        self.lat_min = None
+        self.lat_max = None
+        self.lon_min = None
+        self.lon_max = None
 
-
-    def create(self, year, nj, ni, scale, offset, variable_name, variable_metadata):
+    def create(self, year, period, nj, ni, scale, offset, variable_name, variable_metadata, block_size=4096,
+               lat_min=-90, lat_max=90,lon_min=-180,lon_max=180):
+        if os.path.exists(self.filepath):
+            raise RuntimeError(f"Cannot create timestore, {self.filepath} already exists")
         self.year = year
         self.period = period
-        if self.period == "daily":
-            self.shape = (12,nj,ni,31)
-        else:
-            self.shape = (nj,ni,12)
         self.nj = nj
         self.ni = ni
         self.scale = scale
         self.offset = offset
         self.variable_name = variable_name
         self.variable_metadata = variable_metadata
+        self.lon_min = lon_min
+        self.lon_max = lon_max
+        self.lat_min = lat_min
+        self.lat_max = lat_max
 
         metadata_dict = {
+            "period": self.period,
             "year": self.year,
             "nj": self.nj,
             "ni": self.ni,
             "scale": self.scale,
             "offset": self.offset,
             "variable_name": self.variable_name,
-            "variable_metadata": self.variable_metadata
+            "variable_metadata": self.variable_metadata,
+            "lon_min": self.lon_min,
+            "lon_max": self.lon_max,
+            "lat_min": self.lat_min,
+            "lat_max": self.lat_max
         }
+
+        self.calculate_shape()
+
         metadata_bytes = json.dumps(metadata_dict).encode("utf-8")
-        length = len(metadata_bytes)
-        blocks = (5+length // 4096)
-        self.offset = (blocks+1) * 4096
-        with open(self.filepath, "rb+") as f:
+        header_length = 16 + len(metadata_bytes)
+        header_blocks = (header_length // block_size) + (1 if header_length % block_size > 0 else 0)
+        array_size = sum(self.shape)
+        body_blocks = (array_size // block_size) + (1 if array_size % block_size > 0 else 0)
+        self.array_offset = header_blocks * block_size
+
+        with open(self.filepath, "wb") as f:
+            for idx in range(header_blocks+body_blocks):
+                f.write(b'\x00'*block_size)
             f.seek(0)
-            f.write(("%05d" % length).encode("ascii"))
+            f.write(("%08d" % self.array_offset).encode("ascii"))
+            f.write(("%08d" % len(metadata_bytes)).encode("ascii"))
             f.write(metadata_bytes)
             
-        self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="w+", offset=self.offset,
-                               shape=(12, self.nj, self.ni, 31), order="F")
-        self.array[:, :, :, :] = -32768
+        self.open_array()
+        self.array[:, :, :, :] = TimeStore.FILLVALUE
         self.array.flush()
 
-
-
     def open(self):
-            self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="r+", shape=(12, self.nj, self.ni, 31),
-                                   offset=self.offset, order="F")
-
-    def index(self):
-        for idx in range(12*31):
-            month = idx//31
-            day = idx - month*31
-            (_,nr_days) = calendar.monthrange(self.year,1+month)
-            # print(month,nr_days)
-            if day < nr_days:
-                self.valid_indexes.append(idx)
-        print(len(self.valid_indexes))
-
-
-    def get_metadata(self):
-        with open(self.filepath,"rb") as f:
+        with open(self.filepath, "rb") as f:
             f.seek(0)
             try:
-                length = int(f.read(5).decode("utf-8"))
-                metadata_bytes = f.read(length)
-                return json.loads(metadata_bytes.decode("utf-8"))
-            except:
-                print("No metadata?")
-                return None
+                self.array_offset = int(f.read(8).decode("utf-8"))
+                metadata_length = int(f.read(8).decode("utf-8"))
+                metadata_bytes = f.read(metadata_length)
+                metadata_dict = json.loads(metadata_bytes.decode("utf-8"))
+                self.year = metadata_dict["year"]
+                self.period = metadata_dict["period"]
+                self.nj = metadata_dict["nj"]
+                self.ni = metadata_dict["ni"]
+                self.scale = metadata_dict["scale"]
+                self.offset = metadata_dict["offset"]
+                self.variable_name = metadata_dict["variable_name"]
+                self.variable_metadata = metadata_dict["variable_metadata"]
+                self.lon_min = metadata_dict["lon_min"]
+                self.lon_max = metadata_dict["lon_max"]
+                self.lat_min = metadata_dict["lat_min"]
+                self.lat_max = metadata_dict["lat_max"]
+            except Exception as ex:
+                raise RuntimeError(f"Cannot read metadata from {self.filepath}") from ex
 
+        self.calculate_shape()
+        self.open_array()
 
-    def add(self, month, day, data):
-        self.array[month,:,:,day] = np.where(np.isnan(data),-32768,np.int16(data-self.offset/self.scale))
+    def open_array(self):
+        self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="r+", offset=self.array_offset,
+                               shape=self.shape, order="C")
+
+    def summary(self):
+        s = f"path:                  {self.filepath}\n"
+        s += f"variable_name:         {self.variable_name}\n"
+        s += f"offset:                {self.offset}\n"
+        s += f"scale:                 {self.scale}\n"
+        s += f"shape:                 {self.shape}\n"
+        return s
+
+    def calculate_shape(self):
+        if self.period == "daily":
+            self.shape = (12,self.nj,self.ni,31)
+        else:
+            self.shape = (self.nj,self.ni,12)
+
+        if self.period == "daily":
+            for idx in range(12*31):
+                month = idx//31
+                day = idx - month*31
+                (_,nr_days) = calendar.monthrange(self.year,1+month)
+                if day < nr_days:
+                    self.valid_indexes.append(idx)
+        else:
+            self.valid_indexes = list(range(12))
 
     def get_period(self):
         return self.period
-
-    def open(self):
-        if not os.path.exists(self.filepath):
-            self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="w+", offset=0,
-                                   shape=self.shape, order="C")
-            self.array[:, :, :, :] = -32768
-        else:
-            self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="r+", shape=self.shape,
-                                   offset=0, order="C")
 
     def add_day(self, month, day, data):
         self.array[month,:,:,day] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
 
     def add_month(self, month, data):
-        self.array[:,:,month] = data
+        self.array[:,:,month] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
 
-    def get(self, j, i):
+    def get(self, lat, lon):
+        j = round((lat - self.lat_min)/(self.lat_max - self.lat_min) * self.nj)
+        i = round((lon - self.lon_min) / (self.lon_max - self.lon_min) * self.ni)
         if self.period == "daily":
             values = self.array[:,j,i,:]
         else:
@@ -120,7 +156,6 @@ class TimeStore:
         values = np.where(values == -32768, np.nan, values*self.scale + self.offset)
         values = values.flatten()[self.valid_indexes]
         return values.tolist()
-
 
     def save(self):
         self.array.flush()
