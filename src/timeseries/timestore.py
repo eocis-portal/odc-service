@@ -27,6 +27,11 @@ class TimeStore:
 
     def create(self, year, nj, ni, scale, offset, variable_name, variable_metadata):
         self.year = year
+        self.period = period
+        if self.period == "daily":
+            self.shape = (12,nj,ni,31)
+        else:
+            self.shape = (nj,ni,12)
         self.nj = nj
         self.ni = ni
         self.scale = scale
@@ -73,8 +78,6 @@ class TimeStore:
                 self.valid_indexes.append(idx)
         print(len(self.valid_indexes))
 
-    def set_metadata(self,metadata_dict):
-
 
     def get_metadata(self):
         with open(self.filepath,"rb") as f:
@@ -91,20 +94,35 @@ class TimeStore:
     def add(self, month, day, data):
         self.array[month,:,:,day] = np.where(np.isnan(data),-32768,np.int16(data-self.offset/self.scale))
 
+    def get_period(self):
+        return self.period
+
+    def open(self):
+        if not os.path.exists(self.filepath):
+            self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="w+", offset=0,
+                                   shape=self.shape, order="C")
+            self.array[:, :, :, :] = -32768
+        else:
+            self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="r+", shape=self.shape,
+                                   offset=0, order="C")
+
+    def add_day(self, month, day, data):
+        self.array[month,:,:,day] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
+
+    def add_month(self, month, data):
+        self.array[:,:,month] = data
+
     def get(self, j, i):
-        values = self.array[:,j,i,:].flatten().tolist()
-        decoded = []
-        for idx in self.valid_indexes:
-            if values[idx] == TimeStore.FILLVALUE:
-                decoded.append(None)
-            else:
-                decoded.append(values[idx]*self.scale + self.offset)
-        return decoded
+        if self.period == "daily":
+            values = self.array[:,j,i,:]
+        else:
+            values = self.array[j,i,:]
+        values = np.where(values == -32768, np.nan, values*self.scale + self.offset)
+        values = values.flatten()[self.valid_indexes]
+        return values.tolist()
+
 
     def save(self):
         self.array.flush()
-
-
-
 
 
