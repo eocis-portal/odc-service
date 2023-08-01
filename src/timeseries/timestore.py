@@ -2,6 +2,7 @@
 
 import numpy as np
 import xarray as xr
+import json
 import os
 import calendar
 
@@ -9,16 +10,60 @@ class TimeStore:
 
     FILLVALUE = -32768
 
-    def __init__(self, filepath, year, nj, ni, dtype=np.int16, scale=1.0, offset=0.0):
-        self.year = year
+    def __init__(self, filepath):
         self.filepath = filepath
-        self.dtype = dtype
+        self.dtype = np.int16
+        self.year = None
         self.array = None
+        self.nj = None
+        self.ni = None
+        self.scale = None
+        self.offset = None
+        self.valid_indexes = []
+        self.offset = None
+        self.variable_name = None
+        self.variable_metadata = None
+
+
+    def create(self, year, nj, ni, scale, offset, variable_name, variable_metadata):
+        self.year = year
         self.nj = nj
         self.ni = ni
         self.scale = scale
         self.offset = offset
-        self.valid_indexes = []
+        self.variable_name = variable_name
+        self.variable_metadata = variable_metadata
+
+        metadata_dict = {
+            "year": self.year,
+            "nj": self.nj,
+            "ni": self.ni,
+            "scale": self.scale,
+            "offset": self.offset,
+            "variable_name": self.variable_name,
+            "variable_metadata": self.variable_metadata
+        }
+        metadata_bytes = json.dumps(metadata_dict).encode("utf-8")
+        length = len(metadata_bytes)
+        blocks = (5+length // 4096)
+        self.offset = (blocks+1) * 4096
+        with open(self.filepath, "rb+") as f:
+            f.seek(0)
+            f.write(("%05d" % length).encode("ascii"))
+            f.write(metadata_bytes)
+            
+        self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="w+", offset=self.offset,
+                               shape=(12, self.nj, self.ni, 31), order="F")
+        self.array[:, :, :, :] = -32768
+        self.array.flush()
+
+
+
+    def open(self):
+            self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="r+", shape=(12, self.nj, self.ni, 31),
+                                   offset=self.offset, order="F")
+
+    def index(self):
         for idx in range(12*31):
             month = idx//31
             day = idx - month*31
@@ -28,17 +73,23 @@ class TimeStore:
                 self.valid_indexes.append(idx)
         print(len(self.valid_indexes))
 
-    def open(self):
-        if not os.path.exists(self.filepath):
-            self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="w+", offset=0,
-                                   shape=(12, self.nj, self.ni, 31), order="F")
-            self.array[:, :, :, :] = -32768
-        else:
-            self.array = np.memmap(filename=self.filepath, dtype=self.dtype, mode="r+", shape=(12, self.nj, self.ni, 31),
-                                   offset=0, order="F")
+    def set_metadata(self,metadata_dict):
+
+
+    def get_metadata(self):
+        with open(self.filepath,"rb") as f:
+            f.seek(0)
+            try:
+                length = int(f.read(5).decode("utf-8"))
+                metadata_bytes = f.read(length)
+                return json.loads(metadata_bytes.decode("utf-8"))
+            except:
+                print("No metadata?")
+                return None
+
 
     def add(self, month, day, data):
-        self.array[month,:,:,day] = data
+        self.array[month,:,:,day] = np.where(np.isnan(data),-32768,np.int16(data-self.offset/self.scale))
 
     def get(self, j, i):
         values = self.array[:,j,i,:].flatten().tolist()
@@ -53,26 +104,7 @@ class TimeStore:
     def save(self):
         self.array.flush()
 
-def test_load(ts,frompath):
-    for month in sorted(os.listdir(frompath)):
-        monthpath = os.path.join(frompath, month)
-        for day in sorted(os.listdir(monthpath)):
-            daypath = os.path.join(monthpath, day)
-            files = [file for file in os.listdir(daypath) if file.endswith(".nc")]
-            if len(files) != 1:
-                raise Exception("should be one file")
-            filepath = os.path.join(daypath, files[0])
-            print("adding:" + filepath)
-            monthidx = int(month) - 1
-            dayidx = int(day) - 1
-            ds = xr.open_dataset(filepath, mask_and_scale=False)
-            sst = ds["analysed_sst"].data
-            ts.add(monthidx, dayidx, sst)
 
 
-if __name__ == '__main__':
-    ts = TimeStore("/data/esacci_sst/ts.npy",2021,3600,7200,scale=0.01,offset=273.15)
-    ts.open()
-    # test_load(ts,"/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/2021")
-    # ts.save()
-    print(ts.get(600,50))
+
+
