@@ -21,6 +21,7 @@
 #
 
 from layers.analysed_sst import layer as analysed_sst_layer
+from layers.sst_uncertainty import layer as analysed_sst_uncertainty_layer
 
 # REUSABLE CONFIG FRAGMENTS - resource limit declarations
 
@@ -243,7 +244,7 @@ ows_cfg = {
             },
             # Folder-type layers include a list of sub-layers
             "layers": [
-                analysed_sst_layer
+                analysed_sst_layer, analysed_sst_uncertainty_layer
             ]
         }
     ]  ##### End of "layers" list.

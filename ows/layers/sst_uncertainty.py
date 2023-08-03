@@ -4,8 +4,8 @@ from .resource_limits.standard_resource_limits import limits as standard_resourc
 layer = {
     # NOTE: This layer IS a mappable "named layer" that can be selected in GetMap requests
     # Every layer must have a distinct human-readable title and abstract.
-    "title": "Analysed SST Anomalies",
-    "abstract": "Estimates of Sea Surface Temperature Anomaly",
+    "title": "SST Uncertainty",
+    "abstract": "Estimates of Sea Surface Temperature Uncertainty",
     # Mappable layers must have a name - this is the layer name that appears in WMS GetMap
     # or WMTS GetTile requests and the coverage name that appears in WCS
     # DescribeCoverage/GetCoverage requests.
@@ -22,7 +22,7 @@ layer = {
 
     # Supported bands, mapping native band names to a list of possible aliases.
     # See reusable band alias maps above for documentation.
-    "bands": {},
+    "bands": { "analysed_sst_uncertainty": [] },
     # Resource limits.
     # See reusable resource limit declarations above for documentation.
     "resource_limits": standard_resource_limits,

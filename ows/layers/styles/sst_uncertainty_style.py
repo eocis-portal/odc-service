@@ -20,15 +20,7 @@ style = {
     # The function is assumed to take one arguments, an xarray Dataset.  (Plus any additional
     # arguments required by the args and kwargs values in format 3, possibly including product_cfg.)
     #
-    # "index_expression": "analysed_sst",
-    "index_function": {
-        "function": "datacube_ows.band_utils.pre_scaled_band",
-        "kwargs": {
-            "band": "analysed_sst_uncertainty",
-            "scale": 1,
-            "offset": 0
-        }
-    },
+    "index_expression": "analysed_sst_uncertainty",
     # List of bands used by this style. The band may not be passed to the index function if it is not declared
     # here, resulting in an error.  Band aliases can be used here.
     "needed_bands": ["analysed_sst_uncertainty"],
