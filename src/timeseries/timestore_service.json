@@ -1,5 +1,12 @@
 {
-  "locations": {
-    "analysed_sst": "/home/dev/data/regrid/sst/%d.ts"
+  "variables": {
+    "analysed_sst": {
+       "name": "Sea Surface Temperatures",
+       "units": "°C",
+       "ylabel": "Temperature °C",
+       "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/%d.ts",
+       "scale": 1,
+       "offset": -273.15
+    }
   }
 }

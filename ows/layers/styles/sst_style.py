@@ -44,7 +44,7 @@ style = {
             "alpha": 1.0
         },
         {
-            "value": 35,
+            "value": 40,
             "color": "#FF0000"
         }
     ],

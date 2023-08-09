@@ -4,6 +4,9 @@ import os.path
 from io import StringIO
 import csv
 
+START_YEAR=1980
+END_YEAR=2025
+
 from flask import Flask, render_template, request, send_from_directory, abort, make_response, jsonify
 
 class Config:
@@ -19,13 +22,45 @@ app.config.from_object(Config())
 
 class App:
 
-    locations = {}
+    variables = {}
+
+    @staticmethod
+    def configure(config):
+        App.variables = config["variables"]
+        for variable in App.variables:
+            location = App.variables[variable]["location"]
+            min_year = None
+            max_year = None
+            for year in range(START_YEAR,END_YEAR+1):
+                path = location % year
+                if os.path.exists(path):
+                    if min_year is None:
+                        min_year = year
+                    max_year = year
+            App.variables[variable]["start_year"] = min_year
+            App.variables[variable]["end_year"] = max_year
+            print(f"Registering: {variable}: {min_year} - {max_year}")
 
     def __init__(self):
         pass
 
     @staticmethod
-    def get_timeseries(variable,lat,lon,fromdt,todt):
+    @app.route("/timeseries/<string:variable>/metadata", methods=['GET'])
+    def get_metadata(variable):
+        response = jsonify({
+            "name": App.variables[variable]["name"],
+            "units": App.variables[variable]["units"],
+            "ylabel": App.variables[variable]["ylabel"]
+        })
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response
+
+    @staticmethod
+    def get_timeseries(variable,lat,lon,fromdt=None,todt=None):
+        if fromdt is None:
+            fromdt = datetime.date(App.variables[variable]["start_year"], 1, 1)
+        if todt is None:
+            todt = datetime.date(App.variables[variable]["end_year"], 12, 31)
         series = []
         dt = datetime.date(fromdt.year,fromdt.month,fromdt.day)
         current_year = None
@@ -36,13 +71,18 @@ class App:
                 current_year = dt.year
                 current_series = None
                 current_series_idx = 0
-                if variable in App.patterns:
-                    pattern = App.patterns[variable]
+                if variable in App.variables:
+                    variable_settings = App.variables[variable]
+                    pattern = variable_settings["location"]
                     path = pattern % (current_year)
                     if os.path.exists(path):
                         timestore = TimeStore(path)
                         timestore.open()
                         current_series = timestore.get(lat=lat,lon=lon,with_dates=True)
+                        if "scale" in variable_settings or "offset" in variable_settings:
+                            scale = variable_settings.get("scale",1.0)
+                            offset = variable_settings.get("offset",0.0)
+                            current_series = list(map(lambda t: (t[0]*scale+offset,t[1]), current_series))
                         current_series_idx = 0
 
             value = None
@@ -64,20 +104,29 @@ class App:
         (lat,lon) = tuple(latlon.split(":"))
         (lat,lon) = (float(lat),float(lon))
         (fromdt,todt) = tuple(fromto.split(":"))
-        fromdt = datetime.datetime.strptime(fromdt,"%Y-%m-%d").date()
-        todt = datetime.datetime.strptime(todt, "%Y-%m-%d").date()
+        if fromdt:
+            fromdt = datetime.datetime.strptime(fromdt,"%Y-%m-%d").date()
+        else:
+            fromdt = None
+        if todt:
+            todt = datetime.datetime.strptime(todt, "%Y-%m-%d").date()
+        else:
+            todt = None
         series = App.get_timeseries(variable,lat,lon,fromdt,todt)
         if format == "json":
-            return jsonify(series)
+            response = jsonify(series)
         elif format == "csv":
             of = StringIO()
             writer = csv.writer(of)
             writer.writerow(["Date",variable])
             for (dt,value) in series:
                 writer.writerow([dt,value if value is not None else ""])
-            output = make_response(of.getvalue())
-            output.headers["Content-type"] = "text/csv"
-            return output
+            response = make_response(of.getvalue())
+            response.headers["Content-type"] = "text/csv"
+        else:
+            raise ValueError("Invalid format: "+format)
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response
 
     @app.route('/<path:path>')
     def send_report(path):
@@ -95,8 +144,7 @@ if __name__ == '__main__':
     parser.add_argument("--port", type=int, default=app.config["PORT"])
     args = parser.parse_args()
 
-    config_path = sys.argv[1]
-    with open(config_path) as f:
+    with open(args.config) as f:
         config = json.loads(f.read())
-    app.locations = config["locations"]
+    App.configure(config)
     app.run(host=args.host,port=args.port)
