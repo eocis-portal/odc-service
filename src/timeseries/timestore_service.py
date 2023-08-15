@@ -56,7 +56,7 @@ class App:
         return response
 
     @staticmethod
-    def get_timeseries(variable,lat,lon,fromdt=None,todt=None):
+    def get_timeseries(variable,lat,lon,fromdt=None,todt=None,monthly=False):
         if fromdt is None:
             fromdt = datetime.date(App.variables[variable]["start_year"], 1, 1)
         if todt is None:
@@ -78,7 +78,7 @@ class App:
                     if os.path.exists(path):
                         timestore = TimeStore(path)
                         timestore.open()
-                        current_series = timestore.get(lat=lat,lon=lon,with_dates=True)
+                        current_series = timestore.get(lat=lat,lon=lon,with_dates=True,monthly=monthly)
                         if "scale" in variable_settings or "offset" in variable_settings:
                             scale = variable_settings.get("scale",1.0)
                             offset = variable_settings.get("offset",0.0)
@@ -97,10 +97,18 @@ class App:
 
         return series
 
-
     @staticmethod
     @app.route("/timeseries/<string:variable>/<string:latlon>/<string:fromto>/<string:format>",methods=['GET'])
-    def test(variable,latlon,fromto,format):
+    def fetch_daily(variable,latlon,fromto,format):
+        return App.fetch(variable,latlon,fromto,format,monthly=False)
+
+    @staticmethod
+    @app.route("/timeseries_monthly/<string:variable>/<string:latlon>/<string:fromto>/<string:format>", methods=['GET'])
+    def fetch_monthly(variable, latlon, fromto, format):
+        return App.fetch(variable, latlon, fromto, format, monthly=False)
+
+    @staticmethod
+    def fetch(variable, latlon, fromto, format, monthly):
         (lat,lon) = tuple(latlon.split(":"))
         (lat,lon) = (float(lat),float(lon))
         (fromdt,todt) = tuple(fromto.split(":"))
@@ -112,7 +120,7 @@ class App:
             todt = datetime.datetime.strptime(todt, "%Y-%m-%d").date()
         else:
             todt = None
-        series = App.get_timeseries(variable,lat,lon,fromdt,todt)
+        series = App.get_timeseries(variable,lat,lon,fromdt,todt,monthly=monthly)
         if format == "json":
             response = jsonify(series)
         elif format == "csv":

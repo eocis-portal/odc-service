@@ -152,7 +152,7 @@ class TimeStore:
     def add_month(self, month, data):
         self.array[:,:,month] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
 
-    def get(self, lat, lon, with_dates=False):
+    def get(self, lat, lon, with_dates=False, monthly=False):
         j = round((lat - self.lat_min)/(self.lat_max - self.lat_min) * self.nj)
         i = round((lon - self.lon_min) / (self.lon_max - self.lon_min) * self.ni)
         if self.period == "daily":
@@ -160,12 +160,20 @@ class TimeStore:
         else:
             values = self.array[j,i,:]
         values = np.where(values == -32768, np.nan, values*self.scale + self.offset)
-        values = values.flatten()[self.valid_indexes]
-        values = values.tolist()
-        if with_dates:
-            values = [(value,dt) for (value,dt) in zip(values,self.valid_dates) if not np.isnan(value)]
+        if self.period == "daily" and monthly:
+            values = np.nanmean(values,axis=1)
+            values = values.tolist()
+            if with_dates:
+                values = [(values[m], datetime.date(self.year,m+1,15)) for m in range(12) if not np.isnan(values[m])]
+            else:
+                values = list(map(lambda v: v if not np.isnan(v) else None, values))
         else:
-            values = list(map(lambda v: v if not np.isnan(v) else None, values))
+            values = values.flatten()[self.valid_indexes]
+
+            if with_dates:
+                values = [(value,dt) for (value,dt) in zip(values,self.valid_dates) if not np.isnan(value)]
+            else:
+                values = list(map(lambda v: v if not np.isnan(v) else None, values))
         return values
 
     def save(self):
