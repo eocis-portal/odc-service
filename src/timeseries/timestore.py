@@ -1,7 +1,6 @@
 import datetime
 
 import numpy as np
-import xarray as xr
 import json
 import os
 import calendar
@@ -13,7 +12,8 @@ class TimeStore:
     def __init__(self, filepath):
         self.filepath = filepath
         self.dtype = np.int16
-        self.year = None
+        self.start_year = None
+        self.end_year = None
         self.period = None
         self.array = None
         self.nj = None
@@ -31,14 +31,17 @@ class TimeStore:
         self.lon_min = None
         self.lon_max = None
 
-    def create(self, year, period, nj, ni, scale, offset, variable_name, variable_metadata, block_size=4096,
+    def create(self, start_year, end_year, period, input_shape, scale, offset, variable_name, variable_metadata, block_size=4096,
                lat_min=-90, lat_max=90,lon_min=-180,lon_max=180):
         if os.path.exists(self.filepath):
             raise RuntimeError(f"Cannot create timestore, {self.filepath} already exists")
-        self.year = year
+        if period == "daily" and start_year != end_year:
+            raise RuntimeError("Multi-year timestores are not currently supported for daily timeseries")
+        self.start_year = start_year
+        self.end_year = end_year
         self.period = period
-        self.nj = nj
-        self.ni = ni
+        self.nj = input_shape[0]
+        self.ni = input_shape[1]
         self.scale = scale
         self.offset = offset
         self.variable_name = variable_name
@@ -50,7 +53,8 @@ class TimeStore:
 
         metadata_dict = {
             "period": self.period,
-            "year": self.year,
+            "start_year": self.start_year,
+            "end_year": self.end_year,
             "nj": self.nj,
             "ni": self.ni,
             "scale": self.scale,
@@ -92,7 +96,8 @@ class TimeStore:
                 metadata_length = int(f.read(8).decode("utf-8"))
                 metadata_bytes = f.read(metadata_length)
                 metadata_dict = json.loads(metadata_bytes.decode("utf-8"))
-                self.year = metadata_dict["year"]
+                self.start_year = metadata_dict["start_year"]
+                self.end_year = metadata_dict["end_year"]
                 self.period = metadata_dict["period"]
                 self.nj = metadata_dict["nj"]
                 self.ni = metadata_dict["ni"]
@@ -116,6 +121,8 @@ class TimeStore:
 
     def summary(self):
         s = f"path:                  {self.filepath}\n"
+        s += f"period:                {self.period}\n"
+        s += f"interval:              {self.start_year} - {self.end_year}\n"
         s += f"variable_name:         {self.variable_name}\n"
         s += f"offset:                {self.offset}\n"
         s += f"scale:                 {self.scale}\n"
@@ -123,25 +130,30 @@ class TimeStore:
         return s
 
     def calculate_shape(self):
+
         if self.period == "daily":
             self.shape = (12,self.nj,self.ni,31)
         else:
-            self.shape = (self.nj,self.ni,12)
+            duration_years = 1 + self.end_year - self.start_year
+            self.shape = (self.nj,self.ni,12,duration_years)
 
         self.valid_indexes = []
         self.valid_dates = []
-        if self.period == "daily":
-            for idx in range(12*31):
-                month = idx//31
-                day = idx - month*31
-                (_,nr_days) = calendar.monthrange(self.year,1+month)
-                if day < nr_days:
-                    self.valid_indexes.append(idx)
-                    self.valid_dates.append(datetime.date(self.year,month+1,day+1))
-        else:
-            for month in range(12):
-                self.valid_indexes.append(month)
-                self.valid_dates.append(datetime.date(self.year, month+1, 1))
+        for year in range(self.start_year,self.end_year+1):
+
+            if self.period == "daily":
+                for idx in range(12*31):
+                    month = idx//31
+                    day = idx - month*31
+                    (_,nr_days) = calendar.monthrange(year,1+month)
+                    if day < nr_days:
+                        self.valid_indexes.append(idx)
+                        self.valid_dates.append(datetime.date(year,month+1,day+1))
+            else:
+                base_index = (year - self.start_year) * 12
+                for month in range(12):
+                    self.valid_indexes.append(base_index+month)
+                    self.valid_dates.append(datetime.date(year, month+1, 15))
 
     def get_period(self):
         return self.period
@@ -149,34 +161,41 @@ class TimeStore:
     def add_day(self, month, day, data):
         self.array[month,:,:,day] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
 
-    def add_month(self, month, data):
-        self.array[:,:,month] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
+    def add_month(self, year, month, data):
+        self.array[:,:,month,year-self.start_year] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
 
     def get(self, lat, lon, with_dates=False, monthly=False):
         j = round((lat - self.lat_min)/(self.lat_max - self.lat_min) * self.nj)
         i = round((lon - self.lon_min) / (self.lon_max - self.lon_min) * self.ni)
-        if self.period == "daily":
-            values = self.array[:,j,i,:]
-        else:
-            values = self.array[j,i,:]
-        values = np.where(values == -32768, np.nan, values*self.scale + self.offset)
-        if self.period == "daily" and monthly:
-            values = np.nanmean(values,axis=1)
-            values = values.tolist()
-            if with_dates:
-                values = [(values[m], datetime.date(self.year,m+1,15)) for m in range(12) if not np.isnan(values[m])]
-            else:
-                values = list(map(lambda v: v if not np.isnan(v) else None, values))
-        else:
-            values = values.flatten()[self.valid_indexes]
 
-            if with_dates:
-                values = [(value,dt) for (value,dt) in zip(values,self.valid_dates) if not np.isnan(value)]
+        all_values = []
+        for year in range(self.start_year, self.end_year+1):
+            if self.period == "daily":
+                values = self.array[:,j,i,:]
             else:
-                values = list(map(lambda v: v if not np.isnan(v) else None, values))
-        return values
+                values = self.array[j,i,:,:]
+            values = np.where(values == -32768, np.nan, values*self.scale + self.offset)
+            if self.period == "daily" and monthly:
+                values = np.nanmean(values,axis=1)
+                values = values.tolist()
+                if with_dates:
+                    values = [(values[m], datetime.date(year,m+1,15)) for m in range(12) if not np.isnan(values[m])]
+                else:
+                    values = list(map(lambda v: v if not np.isnan(v) else None, values))
+            else:
+                values = values.flatten()[self.valid_indexes]
+
+                if with_dates:
+                    values = [(value,dt) for (value,dt) in zip(values,self.valid_dates) if not np.isnan(value)]
+                else:
+                    values = list(map(lambda v: v if not np.isnan(v) else None, values))
+            all_values += values
+
+        return all_values
 
     def save(self):
         self.array.flush()
+
+
 
 
