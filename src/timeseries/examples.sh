@@ -1,0 +1,7 @@
+python create_timestore.py --start-year 2022 --end-year 2022 --x-dim lon --y-dim lat --period daily /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 analysed_sst /data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/daily/2022.ts
+
+python update_timestore.py /data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/daily/2022.ts "/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/{year}/{month:02d}/{day:02d}/{year}{month:02d}{day:02d}120000-C3S-L4_GHRSST-SSTdepth-OSTIA-GLOB_ICDR3.0-v02.0-fv01.0.nc" --start-year 2022 --start-month 1 --end-year 2022 --end-month 12
+
+python create_timestore.py --start-year 2020 --end-year 2021 --x-dim lon --y-dim lat --period monthly /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 analysed_sst /data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/monthly/2020_2021.ts
+
+python update_timestore.py /data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/monthly/2020_2021.ts "/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/{year}/{month:02d}/{day:02d}/{year}{month:02d}{day:02d}120000-ESACCI-L4_GHRSST-SSTdepth-OSTIA-GLOB_CDR3.0-v02.0-fv01.0.nc" --start-year 2020 --start-month 1 --end-year 2021 --end-month 12

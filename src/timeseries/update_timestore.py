@@ -71,7 +71,8 @@ class TimeStoreBuilder:
                 day += 1
             else:
                 break
-        self.ts.add_month(year,month-1,sums/count)
+        if count:
+            self.ts.add_month(year,month-1,sums/count)
         return complete
 
 
