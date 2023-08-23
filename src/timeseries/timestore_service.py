@@ -78,7 +78,7 @@ class App:
                     if os.path.exists(path):
                         timestore = TimeStore(path)
                         timestore.open()
-                        current_series = timestore.get(lat=lat,lon=lon,with_dates=True,monthly=monthly)
+                        current_series = timestore.get(lat=lat,lon=lon,monthly=monthly)
                         if "scale" in variable_settings or "offset" in variable_settings:
                             scale = variable_settings.get("scale",1.0)
                             offset = variable_settings.get("offset",0.0)

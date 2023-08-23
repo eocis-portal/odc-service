@@ -20,8 +20,7 @@ class TimeStore:
         self.ni = None
         self.scale = None
         self.offset = None
-        self.valid_indexes = []
-        self.valid_dates = []
+        self.valid_indexes = [] # for daily, a list of valid (idx,datetime)
         self.variable_name = None
         self.variable_metadata = None
         self.shape = None
@@ -130,30 +129,20 @@ class TimeStore:
         return s
 
     def calculate_shape(self):
-
         if self.period == "daily":
             self.shape = (12,self.nj,self.ni,31)
+            self.valid_indexes = []
+            for idx in range(12 * 31):
+                month = idx // 31
+                day = idx - month * 31
+                (_, nr_days) = calendar.monthrange(self.start_year, 1 + month)
+                if day < nr_days:
+                    self.valid_indexes.append((idx, datetime.date(self.start_year, month + 1, day + 1)))
+
         else:
             duration_years = 1 + self.end_year - self.start_year
             self.shape = (self.nj,self.ni,12,duration_years)
-
-        self.valid_indexes = []
-        self.valid_dates = []
-        for year in range(self.start_year,self.end_year+1):
-
-            if self.period == "daily":
-                for idx in range(12*31):
-                    month = idx//31
-                    day = idx - month*31
-                    (_,nr_days) = calendar.monthrange(year,1+month)
-                    if day < nr_days:
-                        self.valid_indexes.append(idx)
-                        self.valid_dates.append(datetime.date(year,month+1,day+1))
-            else:
-                base_index = (year - self.start_year) * 12
-                for month in range(12):
-                    self.valid_indexes.append(base_index+month)
-                    self.valid_dates.append(datetime.date(year, month+1, 15))
+            self.valid_indexes = None
 
     def get_period(self):
         return self.period
@@ -164,34 +153,29 @@ class TimeStore:
     def add_month(self, year, month, data):
         self.array[:,:,month,year-self.start_year] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
 
-    def get(self, lat, lon, with_dates=False, monthly=False):
+    def get(self, lat, lon, monthly=False):
         j = round((lat - self.lat_min)/(self.lat_max - self.lat_min) * self.nj)
         i = round((lon - self.lon_min) / (self.lon_max - self.lon_min) * self.ni)
-
-        all_values = []
-        for year in range(self.start_year, self.end_year+1):
-            if self.period == "daily":
-                values = self.array[:,j,i,:]
-            else:
-                values = self.array[j,i,:,:]
-            values = np.where(values == -32768, np.nan, values*self.scale + self.offset)
-            if self.period == "daily" and monthly:
+        if self.period == "daily":
+            values = self.array[:, j, i, :]
+            values = np.where(values == -32768, np.nan, values * self.scale + self.offset)
+            if monthly:
                 values = np.nanmean(values,axis=1)
-                values = values.tolist()
-                if with_dates:
-                    values = [(values[m], datetime.date(year,m+1,15)) for m in range(12) if not np.isnan(values[m])]
-                else:
-                    values = list(map(lambda v: v if not np.isnan(v) else None, values))
+                values = values.flatten().tolist()
+                values = [(values[m], datetime.date(self.start_year,m+1,15)) for m in range(12) if not np.isnan(values[m])]
             else:
-                values = values.flatten()[self.valid_indexes]
+                values = values.flatten().tolist()
+                values = [(values[idx],dt) for (idx,dt) in self.valid_indexes]
+        else:
+            values = []
+            for year in range(self.start_year, self.end_year+1):
+                year_values = self.array[j, i,:,year-self.start_year]
+                year_values = np.where(year_values == -32768, np.nan, year_values * self.scale + self.offset)
+                year_values = year_values.flatten().tolist()
+                year_values = [(year_values[m],datetime.date(year,m+1,15)) for m in range(12)]
+                values += year_values
 
-                if with_dates:
-                    values = [(value,dt) for (value,dt) in zip(values,self.valid_dates) if not np.isnan(value)]
-                else:
-                    values = list(map(lambda v: v if not np.isnan(v) else None, values))
-            all_values += values
-
-        return all_values
+        return values
 
     def save(self):
         self.array.flush()

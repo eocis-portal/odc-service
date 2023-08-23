@@ -19,4 +19,4 @@ if __name__ == "__main__":
     print(ts.summary())
 
     if args.lat is not None and args.lon is not None:
-        print(ts.get(lat=args.lat,lon=args.lon, with_dates=True))
+        print(ts.get(lat=args.lat,lon=args.lon))
