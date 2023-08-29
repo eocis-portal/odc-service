@@ -52,28 +52,7 @@ limits = {
         # 1. No dataset_cache_rules element: Never return a cache-control header
         # 2. dataset_cache_rules set to an empty list []:  Return no-cache for all queries.
         # 3. General case: refer to comments embedded in example below.
-        "dataset_cache_rules": [
-            # Where number of datasets less than the min_datasets element of the first cache rule  (0-3 in this example):
-            #       no-cache.
-            {
-                # Where number of datasets greater than or equal to the min_datasets value for this rule AND
-                # less than the min_datasets of the next rule (4-7 in this example)
-                "min_datasets": 4, # Must be greater than zero.  Blank tiles (0 datasets) are NEVER cached
-                # The cache-control max-age for this rule, in seconds.
-                "max_age": 86400,  # 86400 seconds = 24 hours
-            },
-            {
-                # Rules must be sorted in ascending order of min_datasets values.
-                "min_datasets": 8,
-                "max_age": 604800,  # 604800 seconds = 1 week
-            },
-            # If a resource limit is exceeded, no-cache applies.
-            # Summarising the cache-control results for this example:
-            # 0-3 datasets: no-cache
-            # 4-7 datasets: max-age: 86400
-            # 8-10 datasets: max-age: 604800
-            # 11+ datasets:  no-cache (over-limit behaviour.  Low-resolution summary product or shaded polygons.)
-        ]
+        "dataset_cache_rules": []
     },
     "wcs": {
         # wcs::max_datasets is the WCS equivalent of wms::max_datasets.  The main requirement for setting this

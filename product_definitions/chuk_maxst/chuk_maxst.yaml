@@ -1,5 +1,5 @@
 ---
-name: chuk_maxst
+name: chuk_maxst4326_3
 description: CHUK Max Surface Temperatures
 metadata_type: eo
 
@@ -7,13 +7,13 @@ license: CC-BY-4.0
 
 metadata:
   product:
-    name: chuk_maxst
+    name: chuk_maxst4326_3
 
 storage:
-  crs: "EPSG:27700"
+  crs: "EPSG:4326"
   resolution:
-    x: 100
-    y: 100
+    lat: 0.001
+    lon: 0.001
 
 measurements:
   - name: ST

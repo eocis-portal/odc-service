@@ -27,6 +27,7 @@ from datacube.storage._hdf5 import HDF5_LOCK
 _LOG = logging.getLogger(__name__)
 
 def _rasterio_crs(src):
+
     if src.crs is None:
         return rasterio.CRS.from_epsg(4326)
         # raise ValueError('no CRS')
@@ -104,7 +105,7 @@ class BandDataSource(GeoRasterReader):
             scale = self.source.ds.scales[0]
             offset = self.source.ds.offsets[0]
             fillvalue = self.source.ds.nodatavals[0]
-            a = self.source.ds.read(indexes=self.source.bidx, window=window, out_shape=out_shape, boundless=True, fill_value=274)
+            a = self.source.ds.read(indexes=self.source.bidx, window=window, out_shape=out_shape, boundless=True, fill_value=fillvalue)
             out = np.where(a == fillvalue, np.nan, a*scale + offset)
 
             if self.source_climatology:
@@ -150,6 +151,7 @@ class RasterioDataSource(DataSource):
 
         try:
             _LOG.debug("opening %s", self.filename)
+            print(f"opening {self.filename}")
             with rasterio.open(str(self.filename), sharing=False) as src:
                 override = False
 

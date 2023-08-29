@@ -1,31 +1,31 @@
-id: 11eb12d5-fe20-480c-8aed-978d850c0ee4
+id: 11eb12d5-fe20-480c-8ffd-978d850c0dd4
 creation_dt: 2023-08-25T12:00:00
-product: { name: chuk_maxst }
-product_type: chuk_maxst
+product: { name: chuk_maxst4326_3 }
+product_type: chuk_maxst4326_3
 platform: {code: bbb}
 instrument: {name: ccc}
 format: {name: NetCDFX}
 extent:
   coord:
-    ll: {lat: -48, lon: -5}
-    lr: {lat: -48, lon: 12}
-    ul: {lat: 62, lon: -5}
-    ur: {lat: 62, lon: 12}
+    ll: {lat: 47.01322552502985, lon: -16.7980635849523}
+    lr: {lat: 47.01322552502985, lon: 5.659063256444921}
+    ul: {lat: 61.71634739697962, lon: -16.7980635849523}
+    ur: {lat: 61.71634739697962, lon: 5.659063256444921}
   from_dt: 2019-01-01T12:00:00
   center_dt: 2021-01-01T12:00:00
   to_dt: 2022-12-31T12:00:00
 grid_spatial:
   projection:
     geo_ref_points:
-      ll: {x: -398000, y: -267000}
-      lr: {x: 80700, y: -267000}
-      ul: {x: -398000, y: 1315000}
-      ur: {x: 80700, y: 1315000}
-    spatial_reference: "EPSG:27700"
+      ll: { y: 47.01322552502985, x: -16.7980635849523 }
+      lr: { y: 47.01322552502985, x: 5.659063256444921 }
+      ul: { y: 61.71634739697962, x: -16.7980635849523 }
+      ur: { y: 61.71634739697962, x: 5.659063256444921 }
+    spatial_reference: "EPSG:4326"
 image:
   bands:
     ST:
-      path: /data/chuk/maxst.nc
+      path: /data/chuk/maxst_4326.nc
       layer: "ST"
 lineage:
   source_datasets: {}

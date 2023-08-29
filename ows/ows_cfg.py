@@ -124,6 +124,10 @@ ows_cfg = {
             "EPSG:4326": {  # WGS-84
                 "geographic": True,
                 "vertical_coord_first": True
+            },
+            "EPSG:27700": {  # WGS-84
+                "geographic": False,
+                "vertical_coord_first": True
             }
         },
     },   #### End of "global" section.

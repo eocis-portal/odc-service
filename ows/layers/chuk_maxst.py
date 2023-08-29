@@ -9,14 +9,14 @@ layer = {
     # Mappable layers must have a name - this is the layer name that appears in WMS GetMap
     # or WMTS GetTile requests and the coverage name that appears in WCS
     # DescribeCoverage/GetCoverage requests.
-    "name": "chul_maxst",
+    "name": "chuk_maxst",
     # The ODC product name for the associated data product
-    "product_name": "chuk_maxst",
+    "product_name": "chuk_maxst4326_3",
 
     "default_time": "2022-01-01",
     "time_axis": {
         "time_interval": 1,
-        "start_date": "2022-01-01",
+        "start_date": "2019-01-01",
         "end_date": "2022-12-31"
     },
 
@@ -39,14 +39,14 @@ layer = {
     # (Used for resource management calculations and WCS metadata)
     # Must be in the global "published_CRSs" list.
     # Can be omitted if the product has a single native CRS, as this will be used in preference.
-    "native_crs": "EPSG:27700",
+    "native_crs": "EPSG:4326",
     # The native resolution (x,y)
     # (Used for resource management calculations and WCS metadata)
     # This is the number of CRS units (e.g. degrees, metres) per pixel in the horizontal
     # and vertical directions for the native CRS.
     # Can be omitted if the product has a single native resolution, as this will be used in preference.
     # E.g. for EPSG:3577; (25.0,25.0) for Landsat-8 and (10.0,10.0 for Sentinel-2)
-    "native_resolution": [100, 100],
+    "native_resolution": [0.001, 0.001],
 
     # The image_processing section must be supplied.
     "image_processing": {
