@@ -1,13 +1,13 @@
 ---
-name: sstx
-description: Sea Surface Temperature X
+name: oc
+description: Ocean Colour
 metadata_type: eo
 
 license: CC-BY-4.0
 
 metadata:
   product:
-    name: sstx
+    name: oc
 
 storage:
   crs: "EPSG:4326"
@@ -16,10 +16,14 @@ storage:
     latitude: -0.05
 
 measurements:
-  - name: analysed_sst
+  - name: chlor_a
     aliases: []
-    units: "kelvin"
+    units: "milligram m-3"
     dtype: float32
     nodata: NaN
-    scale_factor: 0.01
-    add_offset: 273.15
+
+
+
+
+
+

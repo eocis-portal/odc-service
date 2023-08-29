@@ -1,0 +1,23 @@
+---
+name: chuk_maxst
+description: CHUK Max Surface Temperatures
+metadata_type: eo
+
+license: CC-BY-4.0
+
+metadata:
+  product:
+    name: chuk_maxst
+
+storage:
+  crs: "EPSG:27700"
+  resolution:
+    x: 100
+    y: 100
+
+measurements:
+  - name: ST
+    aliases: []
+    units: "Kelvin"
+    dtype: float32
+    nodata: NaN
