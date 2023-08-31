@@ -4,7 +4,7 @@
        "name": "Sea Surface Temperatures",
        "units": "°C",
        "ylabel": "Temperature °C",
-       "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/%d.ts",
+       "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/daily/%d.ts",
        "scale": 1,
        "offset": -273.15
     }
