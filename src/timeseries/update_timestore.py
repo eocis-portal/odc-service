@@ -27,8 +27,7 @@ class TimeStoreBuilder:
             end_dt = datetime.date(end_year,end_month,end_day)
         dt = start_dt
         while end_dt is None or dt < end_dt:
-            if not self.load_day(dt.year, dt.month, dt.day):
-                break
+            self.load_day(dt.year, dt.month, dt.day)
             dt += datetime.timedelta(days=1)
 
     def load_day(self, year, month, day):
@@ -44,36 +43,33 @@ class TimeStoreBuilder:
         year = start_year
         month = start_month
         while year <= end_year and month <= end_month:
-            if not self.load_month(year,month):
-                break
+            self.load_month(year,month)
             month += 1
             if month > 12:
                 month = 1
                 year += 1
 
     def load_month(self, year, month):
-        count = 0
+        counts = np.zeros((self.ts.nj,self.ts.ni))
         sums = np.zeros((self.ts.nj,self.ts.ni))
         day = 1
-        complete = False
+
         while True:
             try:
                 datetime.datetime(year,month,day)
             except ValueError:
-                complete=True
                 break
             path = self.input_file_pattern.format(year=year,month=month,day=day)
             if os.path.exists(path):
                 self.logger.info(f"Processing {path}")
                 ds = xr.open_dataset(path)
-                count += 1
-                sums += ds[ts.variable_name].squeeze().data
-                day += 1
-            else:
-                break
-        if count:
-            self.ts.add_month(year,month-1,sums/count)
-        return complete
+                a = ds[ts.variable_name].squeeze().data
+                counts += np.where(np.isnan(a),0,1)
+                sums += np.where(np.isnan(a),0,a)
+            day += 1
+
+        self.ts.add_month(year,month-1,np.where(counts>0,sums/counts,np.nan))
+
 
 
 if __name__ == '__main__':

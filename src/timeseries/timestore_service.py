@@ -31,84 +31,120 @@ class App:
             location = App.variables[variable]["location"]
             min_year = None
             max_year = None
-            for year in range(START_YEAR,END_YEAR+1):
-                path = location % year
-                if os.path.exists(path):
-                    if min_year is None:
-                        min_year = year
-                    max_year = year
+            period = None
+            timestores = {}
+            for filename in os.listdir(location):
+                if not filename.endswith(".ts"):
+                    continue
+                filepath = os.path.join(location,filename)
+                timestore = TimeStore(filepath)
+                timestore.open()
+                start_year = timestore.get_start_year()
+                end_year = timestore.get_end_year()
+                if min_year is None or start_year < min_year:
+                    min_year = start_year
+                if max_year is None or end_year > max_year:
+                    max_year = end_year
+                timestores[(start_year,end_year)] = filepath
+                if period is None:
+                    period = timestore.get_period()
+
             App.variables[variable]["start_year"] = min_year
             App.variables[variable]["end_year"] = max_year
+            App.variables[variable]["time_stores"] = timestores
+            App.variables[variable]["period"] = period
             print(f"Registering: {variable}: {min_year} - {max_year}")
+            for (start_year, end_year) in timestores:
+                print(f"\t{start_year} - {end_year}: "+timestores[(start_year,end_year)])
 
     def __init__(self):
         pass
 
     @staticmethod
-    @app.route("/timeseries/<string:variable>/metadata", methods=['GET'])
-    def get_metadata(variable):
-        response = jsonify({
-            "name": App.variables[variable]["name"],
-            "units": App.variables[variable]["units"],
-            "ylabel": App.variables[variable]["ylabel"]
-        })
+    @app.route("/timeseries/metadata", methods=['GET'])
+    def get_metadata():
+        o = {}
+        for variable in App.variables:
+            vo = App.variables[variable]
+            o[variable] = {
+                "period": vo["period"],
+                "name": vo["name"],
+                "ylabel": vo["ylabel"]
+            }
+        response = jsonify(o)
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
     @staticmethod
-    def get_timeseries(variable,lat,lon,fromdt=None,todt=None,monthly=False):
+    def get_timeseries(variable,lat,lon,fromdt=None,todt=None):
+        variable_settings = App.variables[variable]
+        period = variable_settings["period"]
         if fromdt is None:
             fromdt = datetime.date(App.variables[variable]["start_year"], 1, 1)
         if todt is None:
             todt = datetime.date(App.variables[variable]["end_year"], 12, 31)
+
+        if period == "monthly":
+            fromdt = datetime.date(fromdt.year, fromdt.month, 15)
+            todt = datetime.date(todt.year, todt.month, 15)
+
         series = []
         dt = datetime.date(fromdt.year,fromdt.month,fromdt.day)
         current_year = None
+        current_series_end_year = None
         current_series = None
         current_series_idx = 0
         while dt <= todt:
-            if current_year is None or dt.year != current_year:
+            if current_year is None or dt.year > current_year:
+                # when moving to a new year, check if we need to load from a new timestore
                 current_year = dt.year
-                current_series = None
-                current_series_idx = 0
-                if variable in App.variables:
-                    variable_settings = App.variables[variable]
-                    pattern = variable_settings["location"]
-                    path = pattern % (current_year)
-                    if os.path.exists(path):
-                        timestore = TimeStore(path)
-                        timestore.open()
-                        current_series = timestore.get(lat=lat,lon=lon,monthly=monthly)
-                        if "scale" in variable_settings or "offset" in variable_settings:
-                            scale = variable_settings.get("scale",1.0)
-                            offset = variable_settings.get("offset",0.0)
-                            current_series = list(map(lambda t: (t[0]*scale+offset,t[1]), current_series))
-                        current_series_idx = 0
+
+                if current_series_end_year is None or current_year > current_series_end_year:
+                    current_series = None
+                    if variable in App.variables:
+
+                        time_stores = variable_settings["time_stores"]
+                        for (start_year,end_year) in time_stores:
+                            if start_year <= current_year and end_year >= current_year:
+                                path = time_stores[(start_year,end_year)]
+                                timestore = TimeStore(path)
+                                timestore.open()
+                                current_series = timestore.get(lat=lat, lon=lon)
+                                current_series_idx = 0
+                                current_series_end_year = end_year
+                                if "scale" in variable_settings or "offset" in variable_settings:
+                                    scale = variable_settings.get("scale", 1.0)
+                                    offset = variable_settings.get("offset", 0.0)
+                                    current_series = list(map(lambda t: (t[0] * scale + offset if t[0] is not None else None, t[1]), current_series))
+                                break
 
             value = None
             if current_series:
-                while current_series_idx < len(current_series) and current_series[current_series_idx][1] != dt:
+                while current_series_idx < len(current_series) and current_series[current_series_idx][1] < dt:
                     current_series_idx += 1
                 if current_series_idx < len(current_series):
                     value = current_series[current_series_idx][0]
 
             series.append([dt.strftime("%Y-%m-%d"),value])
-            dt += datetime.timedelta(days=1)
+
+            if period == "monthly":
+                while True:
+                    dt += datetime.timedelta(days=1)
+                    if dt.day == 15:
+                        break
+            else:
+                dt += datetime.timedelta(days=1)
 
         return series
 
     @staticmethod
     @app.route("/timeseries/<string:variable>/<string:latlon>/<string:fromto>/<string:format>",methods=['GET'])
-    def fetch_daily(variable,latlon,fromto,format):
-        return App.fetch(variable,latlon,fromto,format,monthly=False)
+    def fetch(variable,latlon,fromto,format):
+        return App.fetch(variable,latlon,fromto,format)
+
 
     @staticmethod
-    @app.route("/timeseries_monthly/<string:variable>/<string:latlon>/<string:fromto>/<string:format>", methods=['GET'])
-    def fetch_monthly(variable, latlon, fromto, format):
-        return App.fetch(variable, latlon, fromto, format, monthly=False)
-
-    @staticmethod
-    def fetch(variable, latlon, fromto, format, monthly):
+    def fetch(variable, latlon, fromto, format):
         (lat,lon) = tuple(latlon.split(":"))
         (lat,lon) = (float(lat),float(lon))
         (fromdt,todt) = tuple(fromto.split(":"))
@@ -120,7 +156,7 @@ class App:
             todt = datetime.datetime.strptime(todt, "%Y-%m-%d").date()
         else:
             todt = None
-        series = App.get_timeseries(variable,lat,lon,fromdt,todt,monthly=monthly)
+        series = App.get_timeseries(variable,lat,lon,fromdt,todt)
         if format == "json":
             response = jsonify(series)
         elif format == "csv":

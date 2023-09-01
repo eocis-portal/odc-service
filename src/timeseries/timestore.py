@@ -11,7 +11,8 @@ class TimeStore:
 
     def __init__(self, filepath):
         self.filepath = filepath
-        self.dtype = np.int16
+        self.use_int16 = None
+        self.dtype = None
         self.start_year = None
         self.end_year = None
         self.period = None
@@ -30,12 +31,17 @@ class TimeStore:
         self.lon_min = None
         self.lon_max = None
 
-    def create(self, start_year, end_year, period, input_shape, scale, offset, variable_name, variable_metadata, block_size=4096,
+    def create(self, start_year, end_year, period, input_shape, use_int16, scale, offset, variable_name, variable_metadata, block_size=4096,
                lat_min=-90, lat_max=90,lon_min=-180,lon_max=180):
+        self.use_int16 = use_int16
+        self.dtype = np.int16 if self.use_int16 else np.float32
+
+
         if os.path.exists(self.filepath):
             raise RuntimeError(f"Cannot create timestore, {self.filepath} already exists")
         if period == "daily" and start_year != end_year:
             raise RuntimeError("Multi-year timestores are not currently supported for daily timeseries")
+
         self.start_year = start_year
         self.end_year = end_year
         self.period = period
@@ -63,7 +69,8 @@ class TimeStore:
             "lon_min": self.lon_min,
             "lon_max": self.lon_max,
             "lat_min": self.lat_min,
-            "lat_max": self.lat_max
+            "lat_max": self.lat_max,
+            "use_int16": self.use_int16
         }
 
         self.calculate_shape()
@@ -84,7 +91,10 @@ class TimeStore:
             f.write(metadata_bytes)
             
         self.open_array()
-        self.array[:, :, :, :] = TimeStore.FILLVALUE
+        if self.use_int16:
+            self.array[:, :, :, :] = TimeStore.FILLVALUE
+        else:
+            self.array[:, :, :, :] = np.nan
         self.array.flush()
 
     def open(self):
@@ -95,6 +105,8 @@ class TimeStore:
                 metadata_length = int(f.read(8).decode("utf-8"))
                 metadata_bytes = f.read(metadata_length)
                 metadata_dict = json.loads(metadata_bytes.decode("utf-8"))
+                self.use_int16 = metadata_dict.get("use_int16",True)
+                self.dtype = np.int16 if self.use_int16 else np.float32
                 self.start_year = metadata_dict["start_year"]
                 self.end_year = metadata_dict["end_year"]
                 self.period = metadata_dict["period"]
@@ -126,6 +138,7 @@ class TimeStore:
         s += f"offset:                {self.offset}\n"
         s += f"scale:                 {self.scale}\n"
         s += f"shape:                 {self.shape}\n"
+        s += f"use_int16:             {self.use_int16}\n"
         return s
 
     def calculate_shape(self):
@@ -148,31 +161,46 @@ class TimeStore:
         return self.period
 
     def add_day(self, month, day, data):
-        self.array[month,:,:,day] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
+        if self.duse_int16:
+            self.array[month,:,:,day] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
+        else:
+            self.array[month, :, :, day] = data
 
     def add_month(self, year, month, data):
-        self.array[:,:,month,year-self.start_year] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
+        if self.use_int16:
+            self.array[:,:,month,year-self.start_year] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
+        else:
+            self.array[:, :, month, year - self.start_year] = data
 
-    def get(self, lat, lon, monthly=False):
+    def get_start_year(self):
+        return self.start_year
+
+    def get_end_year(self):
+        return self.end_year
+
+    def get(self, lat, lon, convert_to_monthly=False):
         j = round((lat - self.lat_min)/(self.lat_max - self.lat_min) * self.nj)
         i = round((lon - self.lon_min) / (self.lon_max - self.lon_min) * self.ni)
+        nan_to_none = lambda v: None if np.isnan(v) else v
         if self.period == "daily":
             values = self.array[:, j, i, :]
-            values = np.where(values == -32768, np.nan, values * self.scale + self.offset)
-            if monthly:
+            if self.use_int16:
+                values = np.where(values == TimeStore.FILLVALUE, np.nan, values * self.scale + self.offset)
+            if convert_to_monthly:
                 values = np.nanmean(values,axis=1)
                 values = values.flatten().tolist()
-                values = [(values[m], datetime.date(self.start_year,m+1,15)) for m in range(12) if not np.isnan(values[m])]
+                values = [(nan_to_none(values[m]), datetime.date(self.start_year,m+1,15)) for m in range(12)]
             else:
                 values = values.flatten().tolist()
-                values = [(values[idx],dt) for (idx,dt) in self.valid_indexes]
+                values = [(nan_to_none(values[idx]),dt) for (idx,dt) in self.valid_indexes]
         else:
             values = []
             for year in range(self.start_year, self.end_year+1):
                 year_values = self.array[j, i,:,year-self.start_year]
-                year_values = np.where(year_values == -32768, np.nan, year_values * self.scale + self.offset)
+                if self.use_int16:
+                    year_values = np.where(year_values == -32768, np.nan, year_values * self.scale + self.offset)
                 year_values = year_values.flatten().tolist()
-                year_values = [(year_values[m],datetime.date(year,m+1,15)) for m in range(12)]
+                year_values = [(nan_to_none(year_values[m]),datetime.date(year,m+1,15)) for m in range(12)]
                 values += year_values
 
         return values

@@ -20,6 +20,7 @@ if __name__ == '__main__':
     parser.add_argument("input_folder")
     parser.add_argument("input_variable")
     parser.add_argument("output_file")
+    parser.add_argument("--use_int16", action="store_true")
     parser.add_argument("--start-year", type=int, required=True)
     parser.add_argument("--end-year", type=int, required=True)
     parser.add_argument("--y-dim", type=str, default="lat")
@@ -38,7 +39,7 @@ if __name__ == '__main__':
 
     ts = TimeStore(args.output_file)
 
-    ts.create(args.start_year,args.end_year,args.period,input_shape,scale=args.scale,offset=args.offset,variable_name=args.input_variable,
+    ts.create(args.start_year,args.end_year,args.period,input_shape,use_int16=args.use_int16,scale=args.scale,offset=args.offset,variable_name=args.input_variable,
               variable_metadata={})
 
     ts.save()
