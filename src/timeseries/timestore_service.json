@@ -15,6 +15,21 @@
        "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/monthly",
        "scale": 1,
        "offset": -273.15
+    },
+    "monthly_analysed_sst_climatology": {
+       "name": "Sea Surface Temperature Climatology",
+       "units": "°C",
+       "ylabel": "Temperature °C",
+       "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst_climatology",
+       "scale": 1,
+       "offset": -273.15,
+       "is_climatology": true
+    },
+    "ocean_colour": {
+       "name": "Chlorophyll",
+       "units": "milligram m-3",
+       "ylabel": "milligram m-3",
+       "location":"/data/ocean_colour/TimeSeries/"
     }
   }
 }

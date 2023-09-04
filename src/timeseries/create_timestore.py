@@ -20,14 +20,15 @@ if __name__ == '__main__':
     parser.add_argument("input_folder")
     parser.add_argument("input_variable")
     parser.add_argument("output_file")
-    parser.add_argument("--use_int16", action="store_true")
+    parser.add_argument("--use-int16", action="store_true")
     parser.add_argument("--start-year", type=int, required=True)
     parser.add_argument("--end-year", type=int, required=True)
     parser.add_argument("--y-dim", type=str, default="lat")
     parser.add_argument("--x-dim", type=str, default="lon")
     parser.add_argument("--period", type=str, default="monthly")
-    parser.add_argument("--scale",type=float,default=0.01)
-    parser.add_argument("--offset",type=float,default=273.15)
+    parser.add_argument("--for-climatology", action="store_true")
+    parser.add_argument("--scale",type=float,default=1)
+    parser.add_argument("--offset",type=float,default=0)
 
     args = parser.parse_args()
 
@@ -40,7 +41,7 @@ if __name__ == '__main__':
     ts = TimeStore(args.output_file)
 
     ts.create(args.start_year,args.end_year,args.period,input_shape,use_int16=args.use_int16,scale=args.scale,offset=args.offset,variable_name=args.input_variable,
-              variable_metadata={})
+              variable_metadata={}, for_climatology=args.for_climatology)
 
     ts.save()
 

@@ -16,6 +16,7 @@ class TimeStore:
         self.start_year = None
         self.end_year = None
         self.period = None
+        self.for_climatology = None
         self.array = None
         self.nj = None
         self.ni = None
@@ -32,7 +33,7 @@ class TimeStore:
         self.lon_max = None
 
     def create(self, start_year, end_year, period, input_shape, use_int16, scale, offset, variable_name, variable_metadata, block_size=4096,
-               lat_min=-90, lat_max=90,lon_min=-180,lon_max=180):
+               lat_min=-90, lat_max=90,lon_min=-180,lon_max=180,for_climatology=False):
         self.use_int16 = use_int16
         self.dtype = np.int16 if self.use_int16 else np.float32
 
@@ -42,6 +43,7 @@ class TimeStore:
         if period == "daily" and start_year != end_year:
             raise RuntimeError("Multi-year timestores are not currently supported for daily timeseries")
 
+        self.for_climatology = for_climatology
         self.start_year = start_year
         self.end_year = end_year
         self.period = period
@@ -70,7 +72,8 @@ class TimeStore:
             "lon_max": self.lon_max,
             "lat_min": self.lat_min,
             "lat_max": self.lat_max,
-            "use_int16": self.use_int16
+            "use_int16": self.use_int16,
+            "for_climatology": self.for_climatology
         }
 
         self.calculate_shape()
@@ -92,9 +95,9 @@ class TimeStore:
             
         self.open_array()
         if self.use_int16:
-            self.array[:, :, :, :] = TimeStore.FILLVALUE
+            self.array[...] = TimeStore.FILLVALUE
         else:
-            self.array[:, :, :, :] = np.nan
+            self.array[...] = np.nan
         self.array.flush()
 
     def open(self):
@@ -106,6 +109,7 @@ class TimeStore:
                 metadata_bytes = f.read(metadata_length)
                 metadata_dict = json.loads(metadata_bytes.decode("utf-8"))
                 self.use_int16 = metadata_dict.get("use_int16",True)
+                self.for_climatology = metadata_dict.get("for_climatology",False)
                 self.dtype = np.int16 if self.use_int16 else np.float32
                 self.start_year = metadata_dict["start_year"]
                 self.end_year = metadata_dict["end_year"]
@@ -133,6 +137,7 @@ class TimeStore:
     def summary(self):
         s = f"path:                  {self.filepath}\n"
         s += f"period:                {self.period}\n"
+        s += f"climatology:           {self.for_climatology}\n"
         s += f"interval:              {self.start_year} - {self.end_year}\n"
         s += f"variable_name:         {self.variable_name}\n"
         s += f"offset:                {self.offset}\n"
@@ -142,35 +147,59 @@ class TimeStore:
         return s
 
     def calculate_shape(self):
-        if self.period == "daily":
-            self.shape = (12,self.nj,self.ni,31)
-            self.valid_indexes = []
-            for idx in range(12 * 31):
-                month = idx // 31
-                day = idx - month * 31
-                (_, nr_days) = calendar.monthrange(self.start_year, 1 + month)
-                if day < nr_days:
-                    self.valid_indexes.append((idx, datetime.date(self.start_year, month + 1, day + 1)))
-
+        if self.for_climatology:
+            if self.period == "daily":
+                self.shape = (self.nj, self.ni, 366)
+            else:
+                self.shape = (self.nj, self.ni, 12)
         else:
-            duration_years = 1 + self.end_year - self.start_year
-            self.shape = (self.nj,self.ni,12,duration_years)
-            self.valid_indexes = None
+            if self.period == "daily":
+                self.shape = (12,self.nj,self.ni,31)
+                self.valid_indexes = []
+                for idx in range(12 * 31):
+                    month = idx // 31
+                    day = idx - month * 31
+                    (_, nr_days) = calendar.monthrange(self.start_year, 1 + month)
+                    if day < nr_days:
+                        self.valid_indexes.append((idx, datetime.date(self.start_year, month + 1, day + 1)))
+
+            else:
+                duration_years = 1 + self.end_year - self.start_year
+                self.shape = (self.nj,self.ni,12,duration_years)
+                self.valid_indexes = None
+
+    def get_shape(self):
+        return (self.nj, self.ni)
 
     def get_period(self):
         return self.period
 
+    def get_for_climatology(self):
+        return self.for_climatology
+
     def add_day(self, month, day, data):
+        if self.for_climatology:
+            raise Exception("Use add_climatology with a climatology timestore")
         if self.duse_int16:
             self.array[month,:,:,day] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
         else:
             self.array[month, :, :, day] = data
 
     def add_month(self, year, month, data):
+        if self.for_climatology:
+            raise Exception("Use add_climatology with a climatology timestore")
         if self.use_int16:
             self.array[:,:,month,year-self.start_year] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
         else:
             self.array[:, :, month, year - self.start_year] = data
+
+    def add_climatology(self, index, data):
+        if not self.for_climatology:
+            raise Exception("Use add_day with a non-climatology timestore")
+        if self.use_int16:
+            self.array[:,:,index] = np.where(np.isnan(data), TimeStore.FILLVALUE, np.int16((data-self.offset)/self.scale))
+        else:
+            self.array[:,:,index] = data
 
     def get_start_year(self):
         return self.start_year
@@ -178,21 +207,23 @@ class TimeStore:
     def get_end_year(self):
         return self.end_year
 
-    def get(self, lat, lon, convert_to_monthly=False):
+    def get(self, lat, lon):
         j = round((lat - self.lat_min)/(self.lat_max - self.lat_min) * self.nj)
         i = round((lon - self.lon_min) / (self.lon_max - self.lon_min) * self.ni)
         nan_to_none = lambda v: None if np.isnan(v) else v
-        if self.period == "daily":
-            values = self.array[:, j, i, :]
+        if self.for_climatology:
+            values = self.array[j, i, :]
             if self.use_int16:
                 values = np.where(values == TimeStore.FILLVALUE, np.nan, values * self.scale + self.offset)
-            if convert_to_monthly:
-                values = np.nanmean(values,axis=1)
-                values = values.flatten().tolist()
-                values = [(nan_to_none(values[m]), datetime.date(self.start_year,m+1,15)) for m in range(12)]
-            else:
-                values = values.flatten().tolist()
-                values = [(nan_to_none(values[idx]),dt) for (idx,dt) in self.valid_indexes]
+            values = values.flatten().tolist()
+            return [nan_to_none(value) for value in values]  # should not be any missing values, though
+
+        if self.period == "daily":
+            values = self.array[:, j, i, :] if not self.for_climatology else self.array[j, i, :]
+            if self.use_int16:
+                values = np.where(values == TimeStore.FILLVALUE, np.nan, values * self.scale + self.offset)
+            values = values.flatten().tolist()
+            values = [(nan_to_none(values[idx]),dt) for (idx,dt) in self.valid_indexes]
         else:
             values = []
             for year in range(self.start_year, self.end_year+1):
@@ -202,7 +233,6 @@ class TimeStore:
                 year_values = year_values.flatten().tolist()
                 year_values = [(nan_to_none(year_values[m]),datetime.date(year,m+1,15)) for m in range(12)]
                 values += year_values
-
         return values
 
     def save(self):

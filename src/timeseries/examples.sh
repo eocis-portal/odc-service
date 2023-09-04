@@ -5,3 +5,9 @@ python update_timestore.py /data/esacci_sst/public/CDR3.0_release/TimeSeries/ana
 python create_timestore.py --start-year 2020 --end-year 2021 --x-dim lon --y-dim lat --period monthly /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 analysed_sst /data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/monthly/2020_2021.ts
 
 python update_timestore.py /data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/monthly/2020_2021.ts "/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/{year}/{month:02d}/{day:02d}/{year}{month:02d}{day:02d}120000-ESACCI-L4_GHRSST-SSTdepth-OSTIA-GLOB_CDR3.0-v02.0-fv01.0.nc" --start-year 2020 --start-month 1 --end-year 2021 --end-month 12
+
+# climatology
+
+python create_timestore.py --start-year 1982 --end-year 2010 --x-dim lon --y-dim lat --period monthly --for-climatology /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 analysed_sst /data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst_climatology/Climatology_1982_2010.ts
+
+nohup python create_climatology.py /data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst_climatology/Climatology_1982_2010.ts "/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/{year}/{month:02d}/{day:02d}/{year}{month:02d}{day:02d}120000-ESACCI-L4_GHRSST-SSTdepth-OSTIA-GLOB_CDR3.0-v02.0-fv01.0.nc" --start-year 1982 --end-year 2010 &

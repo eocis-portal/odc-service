@@ -79,6 +79,8 @@ class App:
     def get_timeseries(variable,lat,lon,fromdt=None,todt=None):
         variable_settings = App.variables[variable]
         period = variable_settings["period"]
+        is_climatology = variable_settings.get("is_climatology",False)
+
         if fromdt is None:
             fromdt = datetime.date(App.variables[variable]["start_year"], 1, 1)
         if todt is None:
@@ -87,6 +89,30 @@ class App:
         if period == "monthly":
             fromdt = datetime.date(fromdt.year, fromdt.month, 15)
             todt = datetime.date(todt.year, todt.month, 15)
+
+        if is_climatology:
+            timestore_path = list(variable_settings["time_stores"].items())[0][1]
+            timestore = TimeStore(timestore_path)
+            timestore.open()
+            climatology = timestore.get(lat=lat, lon=lon)
+            period = timestore.get_period()
+            dt = datetime.date(fromdt.year, fromdt.month, fromdt.day)
+            if "scale" in variable_settings or "offset" in variable_settings:
+                scale = variable_settings.get("scale", 1.0)
+                offset = variable_settings.get("offset", 0.0)
+                climatology = list(map(lambda t: t * scale + offset if t is not None else None, climatology))
+            series = []
+            while dt <= todt:
+                index = dt.timetuple().tm_yday if period == "daily" else dt.month-1
+                series.append((dt.strftime("%Y-%m-%d"),climatology[index]))
+                if period == "monthly":
+                    while True:
+                        dt += datetime.timedelta(days=1)
+                        if dt.day == 15:
+                            break
+                else:
+                    dt += datetime.timedelta(days=1)
+            return series
 
         series = []
         dt = datetime.date(fromdt.year,fromdt.month,fromdt.day)
