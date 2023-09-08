@@ -33,6 +33,7 @@ class App:
             max_year = None
             period = None
             timestores = {}
+
             for filename in os.listdir(location):
                 if not filename.endswith(".ts"):
                     continue
@@ -69,7 +70,8 @@ class App:
             o[variable] = {
                 "period": vo["period"],
                 "name": vo["name"],
-                "ylabel": vo["ylabel"]
+                "ylabel": vo["ylabel"],
+                "colour": vo.get("colour","black")
             }
         response = jsonify(o)
         response.headers.add("Access-Control-Allow-Origin", "*")
@@ -120,6 +122,7 @@ class App:
         current_series_end_year = None
         current_series = None
         current_series_idx = 0
+
         while dt <= todt:
             if current_year is None or dt.year > current_year:
                 # when moving to a new year, check if we need to load from a new timestore
@@ -161,6 +164,19 @@ class App:
             else:
                 dt += datetime.timedelta(days=1)
 
+        climatology = variable_settings.get("climatology", None)
+        if climatology:
+            climatology_series = App.get_timeseries(climatology,lat,lon,fromdt,todt)
+            anomalies = []
+            for (absolute_tuple,climatology_tuple) in zip(series,climatology_series):
+                dt = absolute_tuple[0]
+                a = absolute_tuple[1]
+                c = climatology_tuple[1]
+                if a is None:
+                    anomalies.append((dt,None))
+                else:
+                    anomalies.append((dt,a-c))
+            return anomalies
         return series
 
     @staticmethod

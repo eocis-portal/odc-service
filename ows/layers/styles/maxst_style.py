@@ -7,12 +7,16 @@ style = {
     "needed_bands": ["ST"],
     "color_ramp": [
         {
-            "value": 280,
-            "color": "#000000",
+            "value": 290,
+            "color": "#0000FF",
             "alpha": 1.0
         },
         {
-            "value": 350,
+            "value": 315,
+            "color": "#00FF00"
+        },
+        {
+            "value": 330,
             "color": "#FF0000"
         }
     ],

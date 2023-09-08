@@ -6,7 +6,8 @@
        "ylabel": "Temperature °C",
        "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/daily",
        "scale": 1,
-       "offset": -273.15
+       "offset": -273.15,
+       "colour": "blue"
     },
     "monthly_analysed_sst": {
        "name": "Sea Surface Temperatures",
@@ -14,7 +15,19 @@
        "ylabel": "Temperature °C",
        "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/monthly",
        "scale": 1,
-       "offset": -273.15
+       "offset": -273.15,
+       "colour": "blue"
+    },
+     "monthly_analysed_sst_anomalies": {
+       "name": "Sea Surface Temperature Anomalies",
+       "units": "°C",
+       "ylabel": "Temperature °C",
+       "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst/monthly",
+       "climatology": "monthly_analysed_sst_climatology",
+       "scale": 1,
+       "offset": -273.15,
+       "is_anomaly": true,
+       "colour": "orange"
     },
     "monthly_analysed_sst_climatology": {
        "name": "Sea Surface Temperature Climatology",
@@ -23,13 +36,15 @@
        "location":"/data/esacci_sst/public/CDR3.0_release/TimeSeries/analysed_sst_climatology",
        "scale": 1,
        "offset": -273.15,
-       "is_climatology": true
+       "is_climatology": true,
+       "colour": "blue"
     },
     "ocean_colour": {
-       "name": "Chlorophyll",
+       "name": "Ocean Colour - Chlorophyll",
        "units": "milligram m-3",
        "ylabel": "milligram m-3",
-       "location":"/data/ocean_colour/TimeSeries/"
+       "location":"/data/ocean_colour/TimeSeries/",
+       "colour": "green"
     }
   }
 }

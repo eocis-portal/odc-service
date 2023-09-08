@@ -44,8 +44,16 @@ style = {
             "alpha": 1.0
         },
         {
-            "value": 40,
+            "value": 15,
+            "color": "#00FF00"
+        },
+        {
+            "value": 30,
             "color": "#FF0000"
+        },
+{
+            "value": 40,
+            "color": "#800080"
         }
     ],
     # If true, the calculated index value for the pixel will be included in GetFeatureInfo responses.
