@@ -1,0 +1,32 @@
+{
+  "variables": {
+    "analysed_sst": {
+      "name": "Sea Surface Temperatures",
+      "units": "°C",
+      "label": "Temperature °C",
+      "location": {
+        "2023:2023": "/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/{year:04d}/{month:02d}/{day:02d}/{year:04d}{month:02d}{day:02d}120000-C3S-L4_UKMO-SSTdepth-OSTIA-GLOB_ICDR3.0-v02.0-fv01.0.nc",
+        "default": "/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/{year:04d}/{month:02d}/{day:02d}/{year:04d}{month:02d}{day:02d}120000-C3S-L4_GHRSST-SSTdepth-OSTIA-GLOB_ICDR3.0-v02.0-fv01.0.nc"
+      },
+      "x_dim": "lon",
+      "y_dim": "lat",
+      "t_dim": "time",
+      "scale": 1,
+      "offset": -273.15
+    },
+    "chuk_maxst": {
+      "name": "Max Surface Temperature @11am (2019-2022)",
+      "variable_name": "ST",
+      "units": "°C",
+      "label": "Temperature °C",
+      "location": {
+        "default": "/data/chuk/maxst_4326.nc"
+      },
+      "x_dim": "lon",
+      "y_dim": "lat",
+      "t_dim": "time",
+      "scale": 1,
+      "offset": -273.15
+    }
+  }
+}
