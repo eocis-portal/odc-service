@@ -81,9 +81,14 @@ datacube -C ~/.datacube.conf product add sst.yaml
 ### Generate SST dataset definitions for each netcdf
 
 ```bash
-python sst_importer.py --input-folder /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 --start-date 2021-01-01 --end-date 2021-12-31
+python sst_importer.py --input-folder /data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1 --start-date 1980-01-01 --end-date 2021-12-31
+# to add a single year
 ./add.sh 2021
 rm -rf 2021
+
+# to add multiple years in the background
+rm nohup.out # if it exists
+nohup ./add_multi.sh 1980 2020 &
 ```
 
 ### Patch datacube to assign EPSG:4326 to imported netcdf4 files by default

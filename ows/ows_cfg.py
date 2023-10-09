@@ -21,6 +21,7 @@
 #
 
 from layers.analysed_sst import layer as analysed_sst_layer
+from layers.sea_ice_fraction import layer as sea_ice_fraction_layer
 from layers.sst_uncertainty import layer as analysed_sst_uncertainty_layer
 from layers.oc_chlor_a import layer as chlor_a_layer
 from layers.chuk_maxst import layer as maxst_layer
@@ -250,7 +251,7 @@ ows_cfg = {
             },
             # Folder-type layers include a list of sub-layers
             "layers": [
-                analysed_sst_layer, analysed_sst_uncertainty_layer
+                analysed_sst_layer, sea_ice_fraction_layer, analysed_sst_uncertainty_layer
             ]
         },
         {
