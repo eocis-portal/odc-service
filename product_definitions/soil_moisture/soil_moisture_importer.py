@@ -39,7 +39,7 @@ lineage:
 def dt_formatter(dt):
     return "'"+dt.strftime("%Y-%m-%dT12:00:00")+"'"
 
-input_path_template = "daily/%(year)04d/sm%(year)04d_%(month)02d_%(day)02d.v1.0.2.nc"
+input_path_template = "daily/%(year)04d/%(month)02d/sm%(year)04d_%(month)02d_%(day)02d.v1.0.2.nc"
 output_path_template = "%(year)04d/sm_dataset_%(month)02d_%(day)02d.yaml"
 
 def generate_dataset_yamls(root_input_folder, root_output_folder, start_date, end_date):
