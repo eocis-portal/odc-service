@@ -4,5 +4,5 @@ python sst_importer.py --input-folder /data/esacci_sst/public/CDR3.0_release/Ana
 ```
 
 ```
-nohup ./add_years.sh . 1984 2009 &
+nohup ../utils/add_multi.sh . 1984 2009 &
 ```

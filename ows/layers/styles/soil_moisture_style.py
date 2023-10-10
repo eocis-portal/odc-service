@@ -1,19 +1,18 @@
 style = {
-    "name": "sea_ice_fraction_style",
-    "title": "Sea Ice Fraction",
-    "abstract": "Sea Ice Fraction",
-    "index_expression": "sea_ice_fraction",
-    "needed_bands": ["sea_ice_fraction"],
-
+    "name": "soil_moisture_style",
+    "title": "Soil Moisture",
+    "abstract": "Soil Moisture",
+    "index_expression": "beta_c4grass",
+    "needed_bands": ["beta_c4grass"],
     "color_ramp": [
         {
             "value": 0,
-            "color": "#0000FF",
+            "color": "#964B00",
             "alpha": 1.0
         },
         {
             "value": 1,
-            "color": "#FFFFFF",
+            "color": "#00FF00",
             "alpha": 1.0
         }
     ],

@@ -1,14 +1,22 @@
 #!/bin/bash
 
-START_YEAR=$1
-END_YEAR=$2
+TARGET_FOLDER=$1
+START_YEAR=$2
+END_YEAR=$3
 
-for TARGET_YEAR in $(seq $START_YEAR $END_YEAR);
+for year in `seq $START_YEAR $END_YEAR`
 do
-for file in $TARGET_YEAR/*
-do
-  echo $file
-  datacube -C ~/.datacube.conf dataset add $file
+  folder=$TARGET_FOLDER/$year
+  if [ -d $folder ];
+  then
+    for file in $folder/*
+    do
+      echo $file
+      datacube -C ~/.datacube.conf dataset add $file
+    done
+  else
+    echo input files missing for $year
+  fi
 done
-done
+
 

@@ -5,39 +5,33 @@ import uuid
 template = """
 id: %(id)s
 creation_dt: %(creation_date)s
-product: { name: sst }
-product_type: sst
+product: { name: soil_moisture }
+product_type: soil_moisture
 platform: {code: bbb}
 instrument: {name: ccc}
 format: {name: NetCDFX}
 extent:
   coord:
-    ll: {lat: -90, lon: -180}
-    lr: {lat: -90, lon: 180}
-    ul: {lat: 90, lon: -180}
-    ur: {lat: 90, lon: 180}
+    ll: {lat: -35.375, lon: -17.875}
+    lr: {lat:  -35.375, lon: 51.375}
+    ul: {lat: 37.375, lon: -17.875}
+    ur: {lat: 37.375, lon: 51.375}
   from_dt: %(from_dt)s
   center_dt: %(center_dt)s
   to_dt: %(to_dt)s
 grid_spatial:
   projection:
     geo_ref_points:
-      ll: {x: -180, y: -90}
-      lr: {x: 180, y: -90}
-      ul: {x: -180, y: 90}
-      ur: {x: 180, y: 90}
+      ll: {x: -17.875, y: -35.375}
+      lr: {x: 51.375, y: -35.375}
+      ul: {x: -17.875, y: 37.375}
+      ur: {x: 51.375, y: 37.375}
     spatial_reference: "EPSG:4326"
 image:
   bands:
-    analysed_sst:
+    beta_c4grass:
       path: %(input_path)s
-      layer: "analysed_sst"
-    analysed_sst_uncertainty:
-      path: %(input_path)s
-      layer: "analysed_sst_uncertainty"
-    sea_ice_fraction:
-      path: %(input_path)s
-      layer: "sea_ice_fraction"
+      layer: "beta_c4grass"
 lineage:
   source_datasets: {}
 """
@@ -45,22 +39,18 @@ lineage:
 def dt_formatter(dt):
     return "'"+dt.strftime("%Y-%m-%dT12:00:00")+"'"
 
-input_path_template = "%(year)04d/%(month)02d/%(day)02d"
-output_path_template = "%(year)04d/sst_dataset_%(month)02d_%(day)02d.yaml"
+input_path_template = "daily/%(year)04d/sm%(year)04d_%(month)02d_%(day)02d.v1.0.2.nc"
+output_path_template = "%(year)04d/sm_dataset_%(month)02d_%(day)02d.yaml"
 
 def generate_dataset_yamls(root_input_folder, root_output_folder, start_date, end_date):
 
     dt = start_date
     while dt <= end_date:
-        input_folder = os.path.join(root_input_folder,
+        input_path = os.path.join(root_input_folder,
             input_path_template % {"year":dt.year, "month":dt.month, "day":dt.day})
-        if not os.path.isdir(input_folder):
-            print(f"Input data folder {input_folder} missing, stopping...")
+        if not os.path.exists(input_path):
+            print(f"Input data filer {input_path} missing, stopping...")
             break
-        input_files = os.listdir(input_folder)
-        if len(input_files) != 1:
-            raise Exception(f"More files than expected (1) in {input_folder}")
-        input_path = input_files[0]
         output_path = os.path.join(root_output_folder,
             output_path_template % {"year":dt.year, "month":dt.month, "day":dt.day})
         if os.path.exists(output_path):
@@ -72,11 +62,10 @@ def generate_dataset_yamls(root_input_folder, root_output_folder, start_date, en
         print(output_path, dt_formatter(dt))
         with open(output_path,"w") as f:
             dt_s = dt_formatter(dt)
-
             s = template % {
                 "id": str(uuid.uuid4()),
                 "creation_date": dt_formatter(datetime.datetime.now()),
-                "input_path": os.path.join(input_folder,input_path),
+                "input_path": input_path,
                 "from_dt": dt_s,
                 "center_dt": dt_s,
                 "to_dt": dt_s
@@ -88,10 +77,10 @@ if __name__ == '__main__':
 
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input-folder",default="/data/esacci_sst/public/CDR3.0_release/Analysis/L4/v3.0.1/")
+    parser.add_argument("--input-folder",default="/data/soil_moisture")
     parser.add_argument("--output-folder", default=".")
-    parser.add_argument("--start-date", default="2021-01-01")
-    parser.add_argument("--end-date", default="2021-12-31")
+    parser.add_argument("--start-date", default="1983-01-01")
+    parser.add_argument("--end-date", default="2022-12-31")
 
     args = parser.parse_args()
 

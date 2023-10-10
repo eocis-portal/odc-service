@@ -1,0 +1,29 @@
+---
+name: soil_moisture
+description: Africa Soil Moisture
+metadata_type: eo
+
+license: CC-BY-4.0
+
+metadata:
+  product:
+    name: soil_moisture
+
+storage:
+  crs: "EPSG:4326"
+  resolution:
+    longitude: 0.25
+    latitude: -0.25
+
+measurements:
+  - name: beta_c4grass
+    aliases: []
+    units: "soil moisture availabilty factor"
+    dtype: float32
+    nodata: NaN
+
+
+
+
+
+
