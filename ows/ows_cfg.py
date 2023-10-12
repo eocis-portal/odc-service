@@ -25,6 +25,8 @@ from layers.sea_ice_fraction import layer as sea_ice_fraction_layer
 from layers.sst_uncertainty import layer as analysed_sst_uncertainty_layer
 from layers.oc_chlor_a import layer as chlor_a_layer
 from layers.chuk_maxst import layer as maxst_layer
+from layers.beta_c4grass import layer as beta_c4grass_layer
+from layers.analysed_sst_anomaly import layer as analysed_sst_anomaly_layer
 
 # REUSABLE CONFIG FRAGMENTS - resource limit declarations
 
@@ -257,6 +259,45 @@ ows_cfg = {
         {
             # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
             # Every layer must have a human-readable title
+            "title": "Sea Surface Temperature Anomalies",
+
+            "abstract": "Sea Surface Temperature Anomaly Layers",
+            # NOTE: Folder-layers do not have a layer "name".
+
+            # Keywords are optional, but can be added at any folder level and are cumulative.
+            # A layer combines its own keywords, the keywords of it's parent (and grandparent, etc) layers,
+            # and any keywords defined in the global section above.
+            #
+            "keywords": [
+                "sst"
+            ],
+
+            # Attribution.  This entire section is optional.  If provided, it overrides any
+            #               attribution defined in the wms section above or any higher layers, and
+            #               applies to this layer and all child layers under this layer unless itself
+            #               overridden.
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                analysed_sst_anomaly_layer
+            ]
+        },
+        {
+            # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
+            # Every layer must have a human-readable title
             "title": "Ocean Colour Chlorophyll",
 
             "abstract": "Ocean Colour Layers",
@@ -330,6 +371,45 @@ ows_cfg = {
             # Folder-type layers include a list of sub-layers
             "layers": [
                maxst_layer
+            ]
+        },
+        {
+            # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
+            # Every layer must have a human-readable title
+            "title": "Soil Moisture",
+
+            "abstract": "Soil Moisture Layers",
+            # NOTE: Folder-layers do not have a layer "name".
+
+            # Keywords are optional, but can be added at any folder level and are cumulative.
+            # A layer combines its own keywords, the keywords of it's parent (and grandparent, etc) layers,
+            # and any keywords defined in the global section above.
+            #
+            "keywords": [
+                "soil moisture"
+            ],
+
+            # Attribution.  This entire section is optional.  If provided, it overrides any
+            #               attribution defined in the wms section above or any higher layers, and
+            #               applies to this layer and all child layers under this layer unless itself
+            #               overridden.
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                beta_c4grass_layer
             ]
         }
     ]  ##### End of "layers" list.

@@ -6,11 +6,11 @@ layer = {
     "abstract": "Estimate of Sea Ice Fraction",
     "name": "sea_ice_fraction",
     "product_name": "sst",
-    "default_time": "2021-01-01",
+    "default_time": "2022-01-01",
     "time_axis": {
         "time_interval": 1,
-        "start_date": "2021-01-01",
-        "end_date": "2021-12-31"
+        "start_date": "2022-01-01",
+        "end_date": "2022-12-31"
     },
     "bands": { "sea_ice_fraction": [] },
     "resource_limits": standard_resource_limits,

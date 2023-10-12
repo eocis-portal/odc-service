@@ -11,7 +11,7 @@ style = {
             "alpha": 1.0
         },
         {
-            "value": 1,
+            "value": 100,
             "color": "#00FF00",
             "alpha": 1.0
         }

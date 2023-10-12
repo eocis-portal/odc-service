@@ -38,6 +38,12 @@ image:
     sea_ice_fraction:
       path: %(input_path)s
       layer: "sea_ice_fraction"
+    analysed_sst_anomaly:
+      path: %(input_path)s
+      layer: "analysed_sst_anomaly"
+    sea_ice_fraction_anomaly:
+      path: %(input_path)s
+      layer: "sea_ice_fraction_anomaly"
 lineage:
   source_datasets: {}
 """

@@ -130,7 +130,7 @@ create extension postgis;
 cd github/odc-service/ows
 . ./ows_env.sh
 datacube-ows-update --schema --role dev
-datacube-ows-update --view
+datacube-ows-update --views
 datacube-ows-update sst
 ```
 

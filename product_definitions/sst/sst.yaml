@@ -31,6 +31,16 @@ measurements:
     units: "1"
     dtype: float32
     nodata: NaN
+  - name: analysed_sst_anomaly
+    aliases: [ ]
+    units: "kelvin"
+    dtype: float32
+    nodata: NaN
+  - name: sea_ice_fraction_anomaly
+    aliases: [ ]
+    units: "1"
+    dtype: float32
+    nodata: NaN
 
 
 

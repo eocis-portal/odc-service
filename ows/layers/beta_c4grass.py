@@ -6,11 +6,11 @@ layer = {
     "abstract": "Gridbox soil moisture availabilty factor (beta) for C4 grasses",
     "name": "beta_c4grass",
     "product_name": "soil_moisture",
-    "default_time": "2022-12-31",
+    "default_time": "2021-12-31",
     "time_axis": {
         "time_interval": 1,
-        "start_date": "1983-01-01",
-        "end_date": "2022-12-31"
+        "start_date": "2021-01-01",
+        "end_date": "2021-12-31"
     },
     "bands": { "beta_c4grass": [] },
     "resource_limits": standard_resource_limits,

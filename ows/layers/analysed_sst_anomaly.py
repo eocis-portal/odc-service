@@ -1,28 +1,28 @@
-from .styles.sst_style import style as sst_style
+from .styles.sst_anomaly_style import style as sst_anomaly_style
 from .resource_limits.standard_resource_limits import limits as standard_resource_limits
 
 layer = {
     # NOTE: This layer IS a mappable "named layer" that can be selected in GetMap requests
     # Every layer must have a distinct human-readable title and abstract.
-    "title": "Analysed SSTs",
-    "abstract": "Estimates of Sea Surface Temperature",
+    "title": "Analysed SST Anomalies",
+    "abstract": "Estimates of Sea Surface Temperature Anomaly",
     # Mappable layers must have a name - this is the layer name that appears in WMS GetMap
     # or WMTS GetTile requests and the coverage name that appears in WCS
     # DescribeCoverage/GetCoverage requests.
-    "name": "analysed_sst",
+    "name": "analysed_sst_anomaly",
     # The ODC product name for the associated data product
-    "product_name": "sst",
+    "product_name": "sst_anomaly",
 
     "default_time": "2022-01-01",
     "time_axis": {
         "time_interval": 1,
-        "start_date": "1983-01-01",
+        "start_date": "2022-01-01",
         "end_date": "2023-09-23"
     },
 
     # Supported bands, mapping native band names to a list of possible aliases.
     # See reusable band alias maps above for documentation.
-    "bands": { "analysed_sst": [] },
+    "bands": { "analysed_sst_anomaly": [] },
     # Resource limits.
     # See reusable resource limit declarations above for documentation.
     "resource_limits": standard_resource_limits,
@@ -140,12 +140,12 @@ layer = {
         # The default_style is the style used when no style is explicitly given in the
         # request.  If given, it must be the name of a style in the "styles" list. If
         # not explictly defined it defaults to the first style in "styles" list.
-        "default_style": "sst_style",
+        "default_style": "sst_anomaly_style",
         # The "styles" list must be explicitly supplied, and must contain at least one
         # style.  See reusable style definitions above for more documentation on
         # defining styles.
         "styles": [
-            sst_style
+            sst_anomaly_style
         ]
     }
 }

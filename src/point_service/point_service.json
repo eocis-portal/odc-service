@@ -14,6 +14,19 @@
       "scale": 1,
       "offset": -273.15
     },
+    "beta_c4grass": {
+      "name": "Soil Moisture",
+      "units": "",
+      "label": "SM Factor",
+      "location": {
+        "default": "/data/soil_moisture/daily/{year:04d}/{month:02d}/sm{year:04d}_{month:02d}_{day:02d}.v1.0.2.nc"
+      },
+      "x_dim": "lon",
+      "y_dim": "lat",
+      "t_dim": "time",
+      "scale": 1,
+      "offset": 0
+    },
     "chuk_maxst": {
       "name": "Max Surface Temperature @11am (2019-2022)",
       "variable_name": "ST",
