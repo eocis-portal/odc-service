@@ -102,8 +102,8 @@ class BandDataSource(GeoRasterReader):
             height = window[1][1]
         with maybe_lock(self._lock):
             # TODO some big assumptions
-            scale = self.source.ds.scales[0]
-            offset = self.source.ds.offsets[0]
+            scale = 0.01 # self.source.ds.scales[0]
+            offset = 273.15 # self.source.ds.offsets[0]
             fillvalue = self.source.ds.nodatavals[0]
             a = self.source.ds.read(indexes=self.source.bidx, window=window, out_shape=out_shape, boundless=True, fill_value=fillvalue)
             out = np.where(a == fillvalue, np.nan, a*scale + offset)
@@ -115,7 +115,8 @@ class BandDataSource(GeoRasterReader):
                 c = c*c_scale + c_offset
                 print("c",c)
                 out = out - c
-                print("out",out)
+
+            print(out)
 
             return out
 

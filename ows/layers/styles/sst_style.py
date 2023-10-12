@@ -21,15 +21,15 @@ style = {
     # The function is assumed to take one arguments, an xarray Dataset.  (Plus any additional
     # arguments required by the args and kwargs values in format 3, possibly including product_cfg.)
     #
-    # "index_expression": "analysed_sst",
-    "index_function": {
-         "function": "datacube_ows.band_utils.pre_scaled_band",
-         "kwargs": {
-             "band": "analysed_sst",
-             "scale": 1,
-             "offset": -273.15
-         }
-    },
+    "index_expression": "analysed_sst",
+    # "index_function": {
+    #     "function": "datacube_ows.band_utils.pre_scaled_band",
+    #     "kwargs": {
+    #         "band": "analysed_sst",
+    #         "scale": 1,
+    #         "offset": -273.15
+    #     }
+    # },
     # List of bands used by this style. The band may not be passed to the index function if it is not declared
     # here, resulting in an error.  Band aliases can be used here.
     "needed_bands": ["analysed_sst"],
@@ -39,21 +39,13 @@ style = {
         # Any value less than the first entry will have colour and alpha of the first entry.
         # (i.e. in this example all negative values will be fully transparent (alpha=0.0).)
         {
-            "value": 0,
+            "value": 270,
             "color": "#0000FF",
             "alpha": 1.0
         },
         {
-            "value": 15,
-            "color": "#00FF00"
-        },
-        {
-            "value": 30,
+            "value": 310,
             "color": "#FF0000"
-        },
-{
-            "value": 40,
-            "color": "#800080"
         }
     ],
     # If true, the calculated index value for the pixel will be included in GetFeatureInfo responses.
@@ -70,6 +62,6 @@ style = {
         # "url": "http://example.com/custom_style_image.png"
         "width": 4,    # 400 pixels at default dpi
         "height": 2,
-        "title": "Centigrade"
+        "title": "Kelvin"
     }
 }
