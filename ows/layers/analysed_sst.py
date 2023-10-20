@@ -16,7 +16,7 @@ layer = {
     "default_time": "2022-01-01",
     "time_axis": {
         "time_interval": 1,
-        "start_date": "1983-01-01",
+        "start_date": "1980-01-01",
         "end_date": "2023-09-23"
     },
 

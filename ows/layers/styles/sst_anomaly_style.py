@@ -36,6 +36,11 @@ style = {
             "alpha": 1.0
         },
         {
+            "value": 0,
+            "color": "#FFFFFF",
+            "alpha": 1.0
+        },
+        {
             "value": 5,
             "color": "#FF0000"
         }

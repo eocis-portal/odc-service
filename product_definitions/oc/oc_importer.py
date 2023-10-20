@@ -43,7 +43,7 @@ start_date = datetime.date(2022, 1, 31)
 end_date = datetime.date(2022, 12, 31)
 
 input_path_template = "%(year)04d/EOCIS-OC-L3S-CHLOR_A-MERGED-1D_DAILY_0.05deg_GEO_PML_OCx-%(year)04d%(month)02d%(day)02d-fv6.0.nc"
-output_path_template = "%(year)04_dataset_%(month)02d_%(day)02d.yaml"
+output_path_template = "%(year)04d/dataset_%(month)02d_%(day)02d.yaml"
 
 def generate_dataset_yamls(root_input_folder, root_output_folder, start_date, end_date):
 
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-folder",default="/data/ocean_colour")
     parser.add_argument("--output-folder", default=".")
-    parser.add_argument("--start-date", default="2021-01-01")
+    parser.add_argument("--start-date", default="1997-09-04")
     parser.add_argument("--end-date", default="2021-12-31")
 
     args = parser.parse_args()

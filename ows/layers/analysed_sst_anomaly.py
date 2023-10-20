@@ -11,12 +11,12 @@ layer = {
     # DescribeCoverage/GetCoverage requests.
     "name": "analysed_sst_anomaly",
     # The ODC product name for the associated data product
-    "product_name": "sst_anomaly",
+    "product_name": "sst",
 
     "default_time": "2022-01-01",
     "time_axis": {
         "time_interval": 1,
-        "start_date": "2022-01-01",
+        "start_date": "1980-01-01",
         "end_date": "2023-09-23"
     },
 

@@ -112,14 +112,11 @@ class BandDataSource(GeoRasterReader):
             out = np.where(a == fillvalue, np.nan, a*scale + offset)
 
             if self.source_climatology:
-                print("subtracting source climatology")
                 c_scale = self.source_climatology.ds.scales[0]
                 c_offset = self.source_climatology.ds.offsets[0]
                 c = self.source_climatology.ds.read(indexes=self.source_climatology.bidx, window=window, out_shape=out_shape)
                 c = c*c_scale + c_offset
                 out = out - c
-
-            print(out)
 
             return out
 
@@ -138,7 +135,7 @@ class RasterioDataSource(DataSource):
             self.climatology = anomaly_variables[self.variable]["climatology_path"]
             self.variable = anomaly_variables[self.variable]["absolute_variable"]
             self.filename = self.filename[:self.filename.rindex(":")]+":"+self.variable
-            print("Detected anomaly layer:",self.climatology,self.variable,self.filename)
+            # print("Detected anomaly layer:",self.climatology,self.variable,self.filename)
         self.nodata = nodata
         self._lock = lock
 
@@ -162,7 +159,7 @@ class RasterioDataSource(DataSource):
 
         try:
             _LOG.debug("opening %s", self.filename)
-            print(f"opening {self.filename}")
+            # print(f"opening {self.filename}")
             with rasterio.open(str(self.filename), sharing=False) as src:
                 override = False
 

@@ -13,10 +13,10 @@ layer = {
     # The ODC product name for the associated data product
     "product_name": "oc",
 
-    "default_time": "2022-01-01",
+    "default_time": "2022-12-31",
     "time_axis": {
         "time_interval": 1,
-        "start_date": "2022-01-01",
+        "start_date": "1997-09-04",
         "end_date": "2022-12-31"
     },
 
