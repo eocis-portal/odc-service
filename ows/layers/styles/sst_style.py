@@ -40,12 +40,40 @@ style = {
         # (i.e. in this example all negative values will be fully transparent (alpha=0.0).)
         {
             "value": 0,
-            "color": "#0000FF",
+            "color": "#FFFFFF",
             "alpha": 1.0
         },
         {
-            "value": 35,
-            "color": "#FF0000"
+            "value": 4,
+            "color": "#FE66FE"
+        },
+        {
+            "value": 8,
+            "color": "#2C1156"
+        },
+        {
+            "value": 12,
+            "color": "#00A8BA"
+        },
+        {
+            "value": 16,
+            "color": "#00C188"
+        },
+        {
+            "value": 20,
+            "color": "#3A9100"
+        },
+        {
+            "value": 24,
+            "color": "#FFF300"
+        },
+        {
+            "value": 28,
+            "color": "#FD0100"
+        },
+        {
+            "value": 32,
+            "color": "#580000"
         }
     ],
     # If true, the calculated index value for the pixel will be included in GetFeatureInfo responses.

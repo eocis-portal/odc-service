@@ -104,6 +104,7 @@ class App:
                 v = None
             ds.close()
         else:
+            print(location_path+" not found")
             v = None
         return {"value":v, "label":variable_settings["label"], "units":variable_settings["units"]}
 
