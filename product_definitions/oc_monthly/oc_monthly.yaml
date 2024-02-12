@@ -1,0 +1,29 @@
+---
+name: oc_monthly
+description: Ocean Colour Monthly
+metadata_type: eo
+
+license: CC-BY-4.0
+
+metadata:
+  product:
+    name: oc_monthly
+
+storage:
+  crs: "EPSG:4326"
+  resolution:
+    longitude: 0.0416667
+    latitude: -0.0416667
+
+measurements:
+  - name: chlor_a
+    aliases: []
+    units: "milligram m-3"
+    dtype: float32
+    nodata: NaN
+
+
+
+
+
+

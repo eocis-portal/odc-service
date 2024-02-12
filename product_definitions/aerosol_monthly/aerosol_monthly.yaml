@@ -1,0 +1,35 @@
+---
+name: aerosol_monthly
+description: Aerosol Monthly
+metadata_type: eo
+
+license: CC-BY-4.0
+
+metadata:
+  product:
+    name: aerosol_monthly
+
+storage:
+  crs: "EPSG:4326"
+  resolution:
+    longitude: 1
+    latitude: -1
+
+measurements:
+  - name: AOD550_mean
+    aliases: []
+    units: "1"
+    dtype: float32
+    nodata: NaN
+  - name: FM_AOD550_mean
+    aliases: []
+    units: "1"
+    dtype: float32
+    nodata: NaN
+
+
+
+
+
+
+
