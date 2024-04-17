@@ -1,5 +1,5 @@
 ---
-name: soil_moisture
+name: soil_moisture_v2.3.0
 description: Africa Soil Moisture
 metadata_type: eo
 
@@ -16,7 +16,7 @@ storage:
     latitude: -0.25
 
 measurements:
-  - name: beta_c4grass
+  - name: fsmc
     aliases: []
     units: "soil moisture availabilty factor"
     dtype: float32

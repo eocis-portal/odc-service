@@ -60,7 +60,7 @@ class App:
         return response
 
     @staticmethod
-    def get_value(variable,lat,lon,dt:datetime.datetime=None):
+    def get_value(variable,y,x,dt:datetime.datetime=None):
         variable_settings = App.variables[variable]
         location_pattern = ""
         for location_key in variable_settings["location"]:
@@ -88,7 +88,7 @@ class App:
 
             x_dim = variable_settings.get("x_dim","lon")
             y_dim = variable_settings.get("y_dim", "lat")
-            selector = {y_dim:lat,x_dim:lon,"method":"nearest"}
+            selector = {y_dim:y,x_dim:x,"method":"nearest"}
 
             if dt is not None:
                 t_dim = variable_settings.get("t_dim", "time")
@@ -106,26 +106,44 @@ class App:
         else:
             print(location_path+" not found")
             v = None
-        return {"value":v, "label":variable_settings["label"], "units":variable_settings["units"]}
+
+        result = {}
+        crs = variable_settings.get("crs", "EPSG:4326")
+        if crs == "EPSG:27700":
+            result["location"] = f"northing={int(y)},easting={int(x)}"
+        else:
+            result["location"] = f"lat={y:.2f},lon={x:.2f}"
+
+        if v is None:
+            return result
+
+        if "categories" in variable_settings:
+            result["category"] = variable_settings["categories"].get(str(int(v)),"?")
+        else:
+            result["value"] = v
+            result["label"] = variable_settings["label"]
+            result["units"] = variable_settings["units"]
+
+        return result
 
 
     @staticmethod
-    @app.route("/service/value/<string:variable>/<string:latlon>/<string:dt>",methods=['GET'])
-    def fetch_with_time(variable,latlon,dt):
-        (lat, lon) = tuple(latlon.split(":"))
-        (lat, lon) = (float(lat), float(lon))
+    @app.route("/service/value/<string:variable>/<string:yx>/<string:dt>",methods=['GET'])
+    def fetch_with_time(variable,yx,dt):
+        (y, x) = tuple(yx.split(":"))
+        (y, x) = (float(y), float(x))
         dt = datetime.datetime.strptime(dt, "%Y-%m-%d")
-        value = App.get_value(variable, lat, lon, dt)
+        value = App.get_value(variable, y, x, dt)
         response = jsonify(value)
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
     @staticmethod
-    @app.route("/service/value/<string:variable>/<string:latlon>", methods=['GET'])
-    def fetch(variable, latlon):
-        (lat, lon) = tuple(latlon.split(":"))
-        (lat, lon) = (float(lat), float(lon))
-        value = App.get_value(variable, lat, lon)
+    @app.route("/service/value/<string:variable>/<string:yx>", methods=['GET'])
+    def fetch(variable, yx):
+        (y, x) = tuple(yx.split(":"))
+        (y, x) = (float(y), float(x))
+        value = App.get_value(variable, y, x)
         response = jsonify(value)
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response

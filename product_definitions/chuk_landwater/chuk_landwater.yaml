@@ -1,0 +1,33 @@
+---
+name: chuk_landwater
+description: CHUK Land Water
+metadata_type: eo
+
+license: CC-BY-4.0
+
+metadata:
+  product:
+    name: chuk_landwater
+
+storage:
+  crs: "EPSG:27700"
+  resolution:
+    x: 100
+    y: 100
+
+measurements:
+  - name: lake_mask
+    aliases: []
+    units: ""
+    dtype: float32
+    nodata: NaN
+  - name: landwater
+    aliases: [ ]
+    units: ""
+    dtype: float32
+    nodata: NaN
+  - name: rivers
+    aliases: [ ]
+    units: ""
+    dtype: float32
+    nodata: NaN

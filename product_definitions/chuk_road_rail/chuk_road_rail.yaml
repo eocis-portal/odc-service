@@ -1,13 +1,13 @@
 ---
-name: chuk_maxst27700_2
-description: CHUK Max Surface Temperatures
+name: chuk_road_rail
+description: CHUK Road Rail
 metadata_type: eo
 
 license: CC-BY-4.0
 
 metadata:
   product:
-    name: chuk_maxst27700_2
+    name: chuk_road_rail
 
 storage:
   crs: "EPSG:27700"
@@ -16,8 +16,13 @@ storage:
     y: 100
 
 measurements:
-  - name: ST
+  - name: railways
     aliases: []
-    units: "Kelvin"
+    units: ""
+    dtype: float32
+    nodata: NaN
+  - name: roads
+    aliases: [ ]
+    units: ""
     dtype: float32
     nodata: NaN

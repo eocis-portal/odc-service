@@ -1,0 +1,29 @@
+---
+name: ice_sheet_monthly
+description: Antarctic Ice Sheet Elevation Change Monthly
+metadata_type: eo
+
+license: CC-BY-4.0
+
+metadata:
+  product:
+    name: ice_sheet_monthly
+
+storage:
+  crs: "EPSG:3031"
+  resolution:
+    x: 25000
+    y: 25000
+
+measurements:
+  - name: sec
+    aliases: []
+    units: "m/year"
+    dtype: float32
+    nodata: NaN
+
+
+
+
+
+

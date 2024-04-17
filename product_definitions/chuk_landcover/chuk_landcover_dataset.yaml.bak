@@ -1,10 +1,10 @@
-id: 50d8ce5f-b21d-4ed5-80a2-988b08ed105d
-creation_dt: 2023-08-25T12:00:00
-product: { name: chuk_maxst27700_2 }
-product_type: chuk_maxst27700_2
+id: 11eb12d5-fe20-480c-8ffd-978d850c4dd4
+creation_dt: 2024-02-12T12:00:00
+product: { name: chuk_landcover }
+product_type: chuk_landcover
 platform: {code: bbb}
 instrument: {name: ccc}
-format: {name: NetCDFX}
+format: {name: GeoTIFF}
 extent:
   coord:
     ll: {lat: 47.01322552502985, lon: -16.7980635849523}
@@ -24,8 +24,7 @@ grid_spatial:
     spatial_reference: "EPSG:27700"
 image:
   bands:
-    ST:
-      path: /data/chuk/maxst.nc
-      layer: "ST"
+    land_cover:
+      path: /data/chuk/EOCIS-AUXILARY-L4-LANDCOVER-MERGED-2023-fv1.0.tif
 lineage:
   source_datasets: {}

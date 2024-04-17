@@ -4,4 +4,4 @@ conda activate odc_env
 
 . ./ows_env.sh
 
-flask run
+nohup flask run >> /dev/null &

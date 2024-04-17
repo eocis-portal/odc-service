@@ -17,7 +17,7 @@ layer = {
     "time_axis": {
         "time_interval": 1,
         "start_date": "1980-01-01",
-        "end_date": "2023-09-23"
+        "end_date": "2024-02-17"
     },
 
     # Supported bands, mapping native band names to a list of possible aliases.

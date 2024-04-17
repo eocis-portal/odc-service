@@ -27,10 +27,21 @@ from layers.sst_uncertainty import layer as analysed_sst_uncertainty_layer
 from layers.oc_chlor_a import layer as chlor_a_layer
 from layers.oc_monthly_chlor_a import layer as monthly_chlor_a_layer
 from layers.chuk_maxst import layer as maxst_layer
+from layers.chuk_landcover import layer as chuk_landcover_layer
+from layers.chuk_landcover_historical import layer as chuk_landcover_historical_layer
+from layers.chuk_urban_builtarea import layer as chuk_urban_builtarea_layer
+from layers.chuk_suburban_builtarea import layer as chuk_suburban_builtarea_layer
+from layers.chuk_power import layer as chuk_power_layer
+from layers.chuk_railways import layer as chuk_railways_layer
+from layers.chuk_roads import layer as chuk_roads_layer
+from layers.chuk_lakes import layer as chuk_lakes_layer
+from layers.chuk_rivers import layer as chuk_rivers_layer
+
 from layers.beta_c4grass import layer as beta_c4grass_layer
 from layers.analysed_sst_anomaly import layer as analysed_sst_anomaly_layer
 from layers.aerosol_monthly_AOD550_mean import layer as aerosol_monthly_AOD550_mean
 from layers.aerosol_monthly_FM_AOD550_mean import layer as aerosol_monthly_FM_AOD550_mean
+from layers.ice_sheet_monthly_sec import layer as ice_sheet_monthly_sec
 
 # REUSABLE CONFIG FRAGMENTS - resource limit declarations
 
@@ -132,9 +143,13 @@ ows_cfg = {
                 "geographic": True,
                 "vertical_coord_first": True
             },
-            "EPSG:27700": {  # WGS-84
+            "EPSG:27700": {
                 "geographic": False,
-                "vertical_coord_first": True
+                "vertical_coord_first": False
+            },
+            "EPSG:3031": {
+                "geographic": False,
+                "vertical_coord_first": False
             }
         },
     },   #### End of "global" section.
@@ -419,6 +434,303 @@ ows_cfg = {
         {
             # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
             # Every layer must have a human-readable title
+            "title": "CHUK Land Cover",
+
+            "abstract": "UK Land Cover",
+            # NOTE: Folder-layers do not have a layer "name".
+
+            # Keywords are optional, but can be added at any folder level and are cumulative.
+            # A layer combines its own keywords, the keywords of it's parent (and grandparent, etc) layers,
+            # and any keywords defined in the global section above.
+            #
+            "keywords": [
+                "land cover"
+            ],
+
+            # Attribution.  This entire section is optional.  If provided, it overrides any
+            #               attribution defined in the wms section above or any higher layers, and
+            #               applies to this layer and all child layers under this layer unless itself
+            #               overridden.
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                chuk_landcover_layer
+            ]
+        },
+        {
+            # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
+            # Every layer must have a human-readable title
+            "title": "CHUK Land Cover Historical",
+
+            "abstract": "UK Land Cover Historical",
+            # NOTE: Folder-layers do not have a layer "name".
+
+            # Keywords are optional, but can be added at any folder level and are cumulative.
+            # A layer combines its own keywords, the keywords of it's parent (and grandparent, etc) layers,
+            # and any keywords defined in the global section above.
+            #
+            "keywords": [
+                "land cover"
+            ],
+
+            # Attribution.  This entire section is optional.  If provided, it overrides any
+            #               attribution defined in the wms section above or any higher layers, and
+            #               applies to this layer and all child layers under this layer unless itself
+            #               overridden.
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                chuk_landcover_historical_layer
+            ]
+        },
+        {
+            # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
+            # Every layer must have a human-readable title
+            "title": "CHUK Urban Built Area Fraction",
+
+            "abstract": "CHUK Urban Built Area Fraction",
+            # NOTE: Folder-layers do not have a layer "name".
+
+            # Keywords are optional, but can be added at any folder level and are cumulative.
+            # A layer combines its own keywords, the keywords of it's parent (and grandparent, etc) layers,
+            # and any keywords defined in the global section above.
+            #
+            "keywords": [
+                "land cover, built area"
+            ],
+
+            # Attribution.  This entire section is optional.  If provided, it overrides any
+            #               attribution defined in the wms section above or any higher layers, and
+            #               applies to this layer and all child layers under this layer unless itself
+            #               overridden.
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                chuk_urban_builtarea_layer
+            ]
+        },
+        {
+            # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
+            # Every layer must have a human-readable title
+            "title": "CHUK Suburban Built Area Fraction",
+
+            "abstract": "CHUK Suburban Built Area Fraction",
+            # NOTE: Folder-layers do not have a layer "name".
+
+            # Keywords are optional, but can be added at any folder level and are cumulative.
+            # A layer combines its own keywords, the keywords of it's parent (and grandparent, etc) layers,
+            # and any keywords defined in the global section above.
+            #
+            "keywords": [
+                "land cover, built area"
+            ],
+
+            # Attribution.  This entire section is optional.  If provided, it overrides any
+            #               attribution defined in the wms section above or any higher layers, and
+            #               applies to this layer and all child layers under this layer unless itself
+            #               overridden.
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                chuk_suburban_builtarea_layer
+            ]
+        },
+        {
+            # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
+            # Every layer must have a human-readable title
+            "title": "CHUK Power Lines",
+
+            "abstract": "CHUK Power Line Locations",
+            # NOTE: Folder-layers do not have a layer "name".
+
+            # Keywords are optional, but can be added at any folder level and are cumulative.
+            # A layer combines its own keywords, the keywords of it's parent (and grandparent, etc) layers,
+            # and any keywords defined in the global section above.
+            #
+            "keywords": [
+                "land cover, built area"
+            ],
+
+            # Attribution.  This entire section is optional.  If provided, it overrides any
+            #               attribution defined in the wms section above or any higher layers, and
+            #               applies to this layer and all child layers under this layer unless itself
+            #               overridden.
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                chuk_power_layer
+            ]
+        },
+        {
+            # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
+            # Every layer must have a human-readable title
+            "title": "CHUK Railways",
+
+            "abstract": "CHUK Railway Locations",
+            # NOTE: Folder-layers do not have a layer "name".
+
+            # Keywords are optional, but can be added at any folder level and are cumulative.
+            # A layer combines its own keywords, the keywords of it's parent (and grandparent, etc) layers,
+            # and any keywords defined in the global section above.
+            #
+            "keywords": [
+                "land cover, railways"
+            ],
+
+            # Attribution.  This entire section is optional.  If provided, it overrides any
+            #               attribution defined in the wms section above or any higher layers, and
+            #               applies to this layer and all child layers under this layer unless itself
+            #               overridden.
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                chuk_railways_layer
+            ]
+        },
+        {
+            "title": "CHUK Roads",
+
+            "abstract": "CHUK Road Locations",
+
+            "keywords": [
+                "land cover, roads"
+            ],
+
+            "attribution": {
+                "title": "EOCIS",
+                "url": "https://eocis.org",
+                "logo": {
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    "format": "image/png",
+                }
+            },
+            "layers": [
+                chuk_roads_layer
+            ]
+        },
+        {
+            "title": "CHUK Lakes",
+
+            "abstract": "CHUK Lake Locations",
+
+            "keywords": [
+                "land cover, lakes"
+            ],
+
+            "attribution": {
+                "title": "EOCIS",
+                "url": "https://eocis.org",
+                "logo": {
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    "format": "image/png",
+                }
+            },
+            "layers": [
+                chuk_lakes_layer
+            ]
+        },
+        {
+            "title": "CHUK Rivers",
+
+            "abstract": "CHUK River Locations",
+
+            "keywords": [
+                "land cover, rivers"
+            ],
+
+            "attribution": {
+                "title": "EOCIS",
+                "url": "https://eocis.org",
+                "logo": {
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    "format": "image/png",
+                }
+            },
+            "layers": [
+                chuk_rivers_layer
+            ]
+        },
+        {
+            # NOTE: This layer is a folder - it is NOT "named layer" that can be selected in GetMap requests
+            # Every layer must have a human-readable title
             "title": "Soil Moisture",
 
             "abstract": "Soil Moisture Layers",
@@ -479,6 +791,31 @@ ows_cfg = {
             # Folder-type layers include a list of sub-layers
             "layers": [
                 aerosol_monthly_AOD550_mean, aerosol_monthly_FM_AOD550_mean
+            ]
+        },
+        {
+            "title": "Ice Sheet Surface Elevation Change",
+            "abstract": "Estimates the thickness of dust and other aerosols in the atmosphere",
+            "keywords": [
+                "ice sheet"
+            ],
+            "attribution": {
+                # Attribution must contain at least one of ("title", "url" and "logo")
+                # A human readable title for the attribution - e.g. the name of the attributed organisation
+                "title": "EOCIS",
+                # The associated - e.g. URL for the attributed organisation
+                "url": "https://eocis.org",
+                # Logo image - e.g. for the attributed organisation
+                "logo": {
+                    # URL for the logo image. (required if logo specified)
+                    "url": "https://eocis.org/wp-content/uploads/2023/06/EOCIS-Logo-Final-1024x451.png",
+                    # Image MIME type for the logo - should match type referenced in the logo url (required if logo specified.)
+                    "format": "image/png",
+                }
+            },
+            # Folder-type layers include a list of sub-layers
+            "layers": [
+                ice_sheet_monthly_sec
             ]
         }
     ]  ##### End of "layers" list.

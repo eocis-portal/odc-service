@@ -1,0 +1,41 @@
+{
+  "variables": {
+    "chuk_landcover": {
+      "name": "CHUK Land Cover",
+      "variable_name": "land_cover",
+      "units": "",
+      "label": "",
+      "location": {
+        "default": "/home/dev/Projects/CHUK/EOCIS-AUXILARY-L4-LANDCOVER-MERGED-2023-fv1.0.nc"
+      },
+      "x_dim": "x",
+      "y_dim": "y",
+      "t_dim": "",
+      "crs": "EPSG:27700",
+      "categories":{
+        "-1": "No_data",
+        "1": "Deciduous_woodland",
+        "2": "Coniferous_woodland",
+        "3": "Arable",
+        "4": "Improved_grassland",
+        "5": "Neutral_grassland",
+        "6": "Calcareous_grassland",
+        "7": "Acid_grassland",
+        "8": "Fen",
+        "9": "Heather",
+        "10": "Heather_grassland",
+        "11": "Bog",
+        "12": "Inland_rock",
+        "13": "Saltwater",
+        "14": "Freshwater",
+        "15": "Supralittoral_rock",
+        "16": "Supralittoral_sediment",
+        "17": "Littoral_rock",
+        "18": "Littoral_sediment",
+        "19": "Saltmarsh",
+        "20": "Urban",
+        "21": "Suburban"
+      }
+    }
+  }
+}

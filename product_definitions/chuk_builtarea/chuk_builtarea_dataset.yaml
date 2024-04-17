@@ -1,7 +1,7 @@
-id: 50d8ce5f-b21d-4ed5-80a2-988b08ed105d
-creation_dt: 2023-08-25T12:00:00
-product: { name: chuk_maxst27700_2 }
-product_type: chuk_maxst27700_2
+id: 0002ef5e-1733-4d09-b9e8-4ce157ad1fe2
+creation_dt: 2024-02-12T12:00:00
+product: { name: chuk_builtarea }
+product_type: chuk_builtarea
 platform: {code: bbb}
 instrument: {name: ccc}
 format: {name: NetCDFX}
@@ -24,8 +24,11 @@ grid_spatial:
     spatial_reference: "EPSG:27700"
 image:
   bands:
-    ST:
-      path: /data/chuk/maxst.nc
-      layer: "ST"
+    urban_area:
+      path: /data/chuk/d1.10-built_area.nc
+      layer: urban_area
+    suburban_area:
+      path: /data/chuk/d1.10-built_area.nc
+      layer: suburban_area
 lineage:
   source_datasets: {}

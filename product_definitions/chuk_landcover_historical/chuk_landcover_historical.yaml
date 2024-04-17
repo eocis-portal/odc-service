@@ -1,13 +1,13 @@
 ---
-name: chuk_maxst27700_2
-description: CHUK Max Surface Temperatures
+name: chuk_landcover_historical
+description: CHUK Land Cover - Historical
 metadata_type: eo
 
 license: CC-BY-4.0
 
 metadata:
   product:
-    name: chuk_maxst27700_2
+    name: chuk_landcover_historical
 
 storage:
   crs: "EPSG:27700"
@@ -16,8 +16,8 @@ storage:
     y: 100
 
 measurements:
-  - name: ST
+  - name: lccs_class
     aliases: []
-    units: "Kelvin"
+    units: ""
     dtype: float32
     nodata: NaN

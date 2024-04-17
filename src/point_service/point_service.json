@@ -41,6 +41,30 @@
       "t_dim": "time",
       "scale": 1,
       "offset": -273.15
+    },
+    "land_cover": {
+      "name": "CHUK Land Cover",
+      "variable_name": "land_cover",
+      "units": "",
+      "label": "Cover",
+      "location": {
+        "default": "/data/chuk/EOCIS-AUXILARY-L4-LANDCOVER-MERGED-2023-fv1.0.nc"
+      },
+      "x_dim": "x",
+      "y_dim": "y",
+      "t_dim": ""
+    },
+    "monthly_chlor_a": {
+      "name": "Ocean Colour Monthly",
+      "variable_name": "chlor_a",
+      "units": "mg m-3",
+      "label": "Chlorophyll Concentration",
+      "location": {
+        "default": "/data/ocean_colour_monthly/{year:04d}/ESACCI-OC-L3S-CHLOR_A-MERGED-1M_MONTHLY_4km_GEO_PML_OCx-{year:04d}{month:02d}-fv6.0.nc"
+      },
+      "x_dim": "lon",
+      "y_dim": "lat",
+      "t_dim": "time"
     }
   }
 }

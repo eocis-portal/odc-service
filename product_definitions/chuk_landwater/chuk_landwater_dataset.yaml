@@ -1,7 +1,7 @@
-id: 50d8ce5f-b21d-4ed5-80a2-988b08ed105d
-creation_dt: 2023-08-25T12:00:00
-product: { name: chuk_maxst27700_2 }
-product_type: chuk_maxst27700_2
+id: d9565f8c-dbc2-4bb5-9597-d0f066094f1f
+creation_dt: 2024-02-12T12:00:00
+product: { name: chuk_landwater }
+product_type: chuk_landwater
 platform: {code: bbb}
 instrument: {name: ccc}
 format: {name: NetCDFX}
@@ -24,8 +24,14 @@ grid_spatial:
     spatial_reference: "EPSG:27700"
 image:
   bands:
-    ST:
-      path: /data/chuk/maxst.nc
-      layer: "ST"
+    lake_mask:
+      path: /data/chuk/d1.1-land_water.nc
+      layer: lake_mask
+    landwater:
+      path: /data/chuk/d1.1-land_water.nc
+      layer: landwater
+    rivers:
+      path: /data/chuk/d1.1-land_water.nc
+      layer: rivers
 lineage:
   source_datasets: {}

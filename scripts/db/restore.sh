@@ -12,7 +12,7 @@ if [ ! -d $BACKUP_DATABASE_PATH ];
 then
    echo No backup found at $BACKUP_DATABASE_PATH to restore from
 else
-   echo restoring $BACKUP_DATABASE_PATH => $DATABASE_PATH
+   echo restoring $BACKUP_DATABASE_PATH to $DATABASE_PATH
    rm -Rf $DATABASE_PATH
    cp -r $BACKUP_DATABASE_PATH $DATABASE_PATH
 fi

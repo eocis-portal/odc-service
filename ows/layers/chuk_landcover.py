@@ -1,28 +1,28 @@
-from .styles.sst_style import style as sst_style
+from .styles.landcover_style import style as landcover_style
 from .resource_limits.standard_resource_limits import limits as standard_resource_limits
 
 layer = {
     # NOTE: This layer IS a mappable "named layer" that can be selected in GetMap requests
     # Every layer must have a distinct human-readable title and abstract.
-    "title": "Analysed SSTs",
-    "abstract": "Estimates of Sea Surface Temperature",
+    "title": "CHUK - Land Cover",
+    "abstract": "Estimates Land Cover on the CHUK grid",
     # Mappable layers must have a name - this is the layer name that appears in WMS GetMap
     # or WMTS GetTile requests and the coverage name that appears in WCS
     # DescribeCoverage/GetCoverage requests.
-    "name": "analysed_sst",
+    "name": "chuk_landcover",
     # The ODC product name for the associated data product
-    "product_name": "sst",
+    "product_name": "chuk_landcover",
 
     "default_time": "2022-01-01",
     "time_axis": {
         "time_interval": 1,
-        "start_date": "1980-01-01",
-        "end_date": "2024-02-17"
+        "start_date": "2019-01-01",
+        "end_date": "2022-12-31"
     },
 
     # Supported bands, mapping native band names to a list of possible aliases.
     # See reusable band alias maps above for documentation.
-    "bands": { "analysed_sst": [] },
+    "bands": { "land_cover": [] },
     # Resource limits.
     # See reusable resource limit declarations above for documentation.
     "resource_limits": standard_resource_limits,
@@ -39,14 +39,14 @@ layer = {
     # (Used for resource management calculations and WCS metadata)
     # Must be in the global "published_CRSs" list.
     # Can be omitted if the product has a single native CRS, as this will be used in preference.
-    "native_crs": "EPSG:4326",
+    "native_crs": "EPSG:27700",
     # The native resolution (x,y)
     # (Used for resource management calculations and WCS metadata)
     # This is the number of CRS units (e.g. degrees, metres) per pixel in the horizontal
     # and vertical directions for the native CRS.
     # Can be omitted if the product has a single native resolution, as this will be used in preference.
     # E.g. for EPSG:3577; (25.0,25.0) for Landsat-8 and (10.0,10.0 for Sentinel-2)
-    "native_resolution": [0.05, -0.05],
+    "native_resolution": [100, 100],
 
     # The image_processing section must be supplied.
     "image_processing": {
@@ -84,14 +84,7 @@ layer = {
     },
     # If the WCS section is not supplied, then this named layer will NOT appear as a WCS
     # coverage (but will still be a layer in WMS and WMTS).
-    "wcs": {
-        # The native format advertised for the coverage.
-        # Must be one of the formats defined
-        # in the global wcs formats section.
-        # Optional: if not supplied defaults to the
-        # globally defined native_format.
-        "native_format": "netCDF"
-    },
+
     # Each key of the identifiers dictionary must match a name from the authorities dictionary
     # in the global section.  The values are the identifiers defined for this layer by that
     # authority.
@@ -140,12 +133,12 @@ layer = {
         # The default_style is the style used when no style is explicitly given in the
         # request.  If given, it must be the name of a style in the "styles" list. If
         # not explictly defined it defaults to the first style in "styles" list.
-        "default_style": "sst_style",
+        "default_style": "landcover_style",
         # The "styles" list must be explicitly supplied, and must contain at least one
         # style.  See reusable style definitions above for more documentation on
         # defining styles.
         "styles": [
-            sst_style
+            landcover_style
         ]
     }
 }
